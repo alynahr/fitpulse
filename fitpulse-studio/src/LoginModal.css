@@ -220,7 +220,7 @@
 
 .login-form {
   display: flex;
-  text-align: left;
+
   flex-direction: column;
 
   gap: 15px;
@@ -600,37 +600,4 @@
   .login-footer-text {
     font-size: 10px;
   }
-}
-
-/* =========================================
-   LOGIN HEADER
-========================================= */
-
-.login-header {
-  padding-top: 30px;
-  padding-bottom: 22px;
-
-  text-align: center;
-}
-
-.login-header h2 {
-  margin: 0;
-
-  color: #ffffff;
-
-  font-size: 20px;
-
-  font-weight: 900;
-
-  letter-spacing: 0.3px;
-}
-
-.login-header p {
-  margin-top: 7px;
-
-  color: #737e8b;
-
-  font-size: 10px;
-
-  line-height: 1.5;
 }

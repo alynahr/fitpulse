@@ -2,15 +2,32 @@ import React, { useState } from "react";
 import "./Hero.css";
 import LoginModal from "./LoginModal";
 import JoinFlow from "./JoinFlow";
+import AdminDashboard from "./AdminDashboard";
 
 const Hero = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
+  const [membershipPreview, setMembershipPreview] = useState(false);
+  const [adminView, setAdminView] = useState(false);
+
+  const openJoinFlow = () => {
+    setMembershipPreview(false);
+    setJoinOpen(true);
+  };
+
+  const openMembershipPreview = () => {
+    setMembershipPreview(true);
+    setJoinOpen(true);
+  };
 
   const closeMenu = () => {
     setMenuOpen(false);
   };
+
+  if (adminView) {
+    return <AdminDashboard onLogout={() => setAdminView(false)} />;
+  }
 
   return (
     <div className="fitpulse-page">
@@ -29,7 +46,7 @@ const Hero = () => {
 
         <div className="header-actions">
 
-          <button className="header-join" onClick={() => setJoinOpen(true)}>
+          <button className="header-join" onClick={openJoinFlow}>
             JOIN NOW
           </button>
 
@@ -102,7 +119,11 @@ const Hero = () => {
 
           <a
             href="#membership"
-            onClick={closeMenu}
+            onClick={(event) => {
+              event.preventDefault();
+              closeMenu();
+              openMembershipPreview();
+            }}
           >
             MEMBERSHIP
           </a>
@@ -137,7 +158,7 @@ const Hero = () => {
             Ready to start your fitness journey?
           </p>
 
-          <button className="drawer-join" onClick={() => setJoinOpen(true)}>
+          <button className="drawer-join" onClick={openJoinFlow}>
             JOIN NOW
           </button>
 
@@ -168,7 +189,13 @@ const Hero = () => {
             CLASSES
           </a>
 
-          <a href="#membership">
+          <a
+            href="#membership"
+            onClick={(event) => {
+              event.preventDefault();
+              openMembershipPreview();
+            }}
+          >
             MEMBERSHIP
           </a>
 
@@ -192,7 +219,7 @@ const Hero = () => {
             LOGIN
           </button>
 
-          <button className="desktop-join" onClick={() => setJoinOpen(true)}>
+          <button className="desktop-join" onClick={openJoinFlow}>
             JOIN NOW
           </button>
 
@@ -225,7 +252,7 @@ const Hero = () => {
 
           <div className="hero-buttons">
 
-            <button className="hero-join" onClick={() => setJoinOpen(true)}>
+            <button className="hero-join" onClick={openJoinFlow}>
               JOIN NOW
             </button>
 
@@ -346,16 +373,38 @@ const Hero = () => {
 
           <div className="footer-brand">
 
-            <img
-            src="/fitpulsetext.png"
-            alt="FitPulse Studio"
-            className="foooter-logo"
-            />
+            <h3>
+              FITPULSE STUDIO
+            </h3>
+
+            <span>
+              DESIGNED FOR RESULTS
+            </span>
 
             <p>
               FitPulse Studio is more than a gym—it's a
               community designed to help you achieve your goals.
             </p>
+
+            <div className="social-icons">
+
+              <a href="#" aria-label="Facebook">
+                f
+              </a>
+
+              <a href="#" aria-label="Instagram">
+                ◎
+              </a>
+
+              <a href="#" aria-label="Twitter">
+                ♥
+              </a>
+
+              <a href="#" aria-label="YouTube">
+                ▶
+              </a>
+
+            </div>
 
           </div>
 
@@ -364,15 +413,15 @@ const Hero = () => {
               QUICK LINKS
           ================================= */}
 
-          <div className="footer-column" style={{ flexWrap: 'wrap', justifyContent: 'center', textAlign: 'center' }}>
+          <div className="footer-column">
 
             <h4>
               QUICK LINKS
             </h4>
 
-            <div className="footer-links" >
+            <div className="footer-links">
 
-              <a href="#home" >
+              <a href="#home">
                 Home
               </a>
 
@@ -380,7 +429,13 @@ const Hero = () => {
                 Classes
               </a>
 
-              <a href="#membership">
+              <a
+                href="#membership"
+                onClick={(event) => {
+                  event.preventDefault();
+                  openMembershipPreview();
+                }}
+              >
                 Membership
               </a>
 
@@ -471,7 +526,7 @@ const Hero = () => {
 
             </div>
 
-            <button className="footer-join" onClick={() => setJoinOpen(true)}>
+            <button className="footer-join">
               JOIN NOW
             </button>
 
@@ -512,11 +567,16 @@ const Hero = () => {
        <LoginModal
       isOpen={loginOpen}
       onClose={() => setLoginOpen(false)}
+      onStaffLogin={() => {
+        setLoginOpen(false);
+        setAdminView(true);
+      }}
     />
 
         <JoinFlow
         isOpen={joinOpen}
         onClose={() => setJoinOpen(false)}
+        previewOnly={membershipPreview}
         />     
     </div>
   );

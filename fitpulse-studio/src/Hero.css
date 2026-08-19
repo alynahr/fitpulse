@@ -63,11 +63,6 @@ button {
   display: block;
 }
 
-.foooter-logo {
-  width: 150px;
-  height: auto;
-}
-
 .header-actions {
   display: flex;
   align-items: center;
@@ -669,7 +664,7 @@ button {
 
 .footer-column {
   padding: 21px 0;
-  
+
   border-bottom: 1px solid #27303c;
 }
 

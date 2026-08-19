@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./JoinFlow.css";
 
 const plans = [
@@ -49,8 +49,14 @@ const plans = [
   },
 ];
 
-const JoinFlow = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState(1);
+const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
+  const [step, setStep] = useState(previewOnly ? 2 : 1);
+
+  useEffect(() => {
+    if (isOpen) {
+      setStep(previewOnly ? 2 : 1);
+    }
+  }, [isOpen, previewOnly]);
 
   const [selectedPlan, setSelectedPlan] = useState("premium");
 
@@ -140,7 +146,7 @@ const JoinFlow = ({ isOpen, onClose }) => {
   };
 
   const closeFlow = () => {
-    setStep(1);
+    setStep(previewOnly ? 2 : 1);
     onClose();
   };
 
@@ -169,7 +175,7 @@ const JoinFlow = ({ isOpen, onClose }) => {
             STEP INDICATOR
         =============================== */}
 
-        <div className="join-step-indicator">
+        {!previewOnly && <div className="join-step-indicator">
 
           <div
             className={`join-step ${
@@ -210,7 +216,7 @@ const JoinFlow = ({ isOpen, onClose }) => {
             <p>PAYMENT</p>
           </div>
 
-        </div>
+        </div>}
 
 
         {/* ===============================
@@ -641,8 +647,7 @@ const JoinFlow = ({ isOpen, onClose }) => {
               <div>
                 <h2>CHOOSE YOUR PLAN</h2>
                 <p>
-                  Select the membership plan that
-                  fits your goals.
+                  Explore the membership plan that fits your goals.
                 </p>
               </div>
 
@@ -769,7 +774,7 @@ const JoinFlow = ({ isOpen, onClose }) => {
             </div>
 
 
-            <div className="plan-actions">
+            {!previewOnly && <div className="plan-actions">
 
               <button
                 className="back-btn"
@@ -785,7 +790,7 @@ const JoinFlow = ({ isOpen, onClose }) => {
                 CONTINUE TO PAYMENT
               </button>
 
-            </div>
+            </div>}
 
           </div>
         )}

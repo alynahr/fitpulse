@@ -1,0 +1,219 @@
+import React, { useState } from "react";
+import "./LoginModal.css";
+
+const LoginModal = ({ isOpen, onClose }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginAs, setLoginAs] = useState("Member");
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="login-overlay" onClick={onClose}>
+
+      <div
+        className="login-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+
+        {/* CLOSE BUTTON */}
+        <button
+          className="login-close"
+          onClick={onClose}
+          aria-label="Close login"
+        >
+          ×
+        </button>
+
+
+        {/* =================================
+            LOGIN HEADER
+        ================================= */}
+
+        <div className="login-header">
+          <h2>WELCOME BACK</h2>
+
+          <p>
+            Login to your FitPulse Studio account
+          </p>
+        </div>
+
+
+        {/* =================================
+            SOCIAL LOGIN
+        ================================= */}
+
+        <div className="social-login">
+
+          <button className="social-login-btn">
+            <span className="google-icon">
+              G
+            </span>
+
+            Continue with Google
+          </button>
+
+        </div>
+
+
+        {/* =================================
+            OR DIVIDER
+        ================================= */}
+
+        <div className="login-divider">
+
+          <span></span>
+
+          <p>OR</p>
+
+          <span></span>
+
+        </div>
+
+
+        {/* =================================
+            LOGIN FORM
+        ================================= */}
+
+        <form
+          className="login-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+
+            console.log("Login submitted");
+            console.log("Login as:", loginAs);
+          }}
+        >
+
+          {/* LOGIN AS */}
+
+          <div className="input-group">
+
+            <label>
+              Login As
+            </label>
+
+            <div className="select-wrapper">
+
+              <select
+                value={loginAs}
+                onChange={(e) =>
+                  setLoginAs(e.target.value)
+                }
+              >
+
+                <option value="Member">
+                  Member
+                </option>
+
+                <option value="Staff">
+                  Staff
+                </option>
+
+              </select>
+
+              <span className="select-arrow">
+                ˅
+              </span>
+
+            </div>
+
+          </div>
+
+
+          {/* EMAIL */}
+
+          <div className="input-group">
+
+            <label>
+              Email Address
+            </label>
+
+            <input
+              type="email"
+              placeholder="you@example.com"
+              required
+            />
+
+          </div>
+
+
+          {/* PASSWORD */}
+
+          <div className="input-group">
+
+            <label>
+              Password
+            </label>
+
+            <div className="password-wrapper">
+
+              <input
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                placeholder="••••••••"
+                required
+              />
+
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
+              >
+                {showPassword ? "◉" : "◌"}
+              </button>
+
+            </div>
+
+          </div>
+
+
+          {/* REMEMBER + FORGOT */}
+
+          <div className="login-options">
+
+            <label className="remember-me">
+
+              <input type="checkbox" />
+
+              <span className="custom-checkbox"></span>
+
+              <span>
+                Remember me
+              </span>
+
+            </label>
+
+
+            <button
+              type="button"
+              className="forgot-password"
+            >
+              Forgot password?
+            </button>
+
+          </div>
+
+
+          {/* LOGIN BUTTON */}
+
+          <button
+            type="submit"
+            className="modal-login-btn"
+          >
+            LOGIN
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+  );
+};
+
+export default LoginModal;

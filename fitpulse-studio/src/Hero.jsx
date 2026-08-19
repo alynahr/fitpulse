@@ -3,6 +3,7 @@ import "./Hero.css";
 import LoginModal from "./LoginModal";
 import JoinFlow from "./JoinFlow";
 import AdminDashboard from "./AdminDashboard";
+import ResetPassword from "./ResetPassword";
 
 const Hero = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,6 +11,7 @@ const Hero = () => {
   const [joinOpen, setJoinOpen] = useState(false);
   const [membershipPreview, setMembershipPreview] = useState(false);
   const [adminView, setAdminView] = useState(false);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
 
   const openJoinFlow = () => {
     setMembershipPreview(false);
@@ -28,7 +30,16 @@ const Hero = () => {
   if (adminView) {
     return <AdminDashboard onLogout={() => setAdminView(false)} />;
   }
-
+  if (resetPasswordOpen) {
+  return (
+    <ResetPassword
+      onBack={() => {
+        setResetPasswordOpen(false);
+        setLoginOpen(true);
+      }}
+    />
+  );
+}
   return (
     <div className="fitpulse-page">
 
@@ -373,13 +384,11 @@ const Hero = () => {
 
           <div className="footer-brand">
 
-            <h3>
-              FITPULSE STUDIO
-            </h3>
-
-            <span>
-              DESIGNED FOR RESULTS
-            </span>
+            <img
+            src="/fitpulsetext.png"
+            alt="FitPulse Studio"
+            className="footer-logo"
+            />
 
             <p>
               FitPulse Studio is more than a gym—it's a
@@ -567,11 +576,17 @@ const Hero = () => {
        <LoginModal
       isOpen={loginOpen}
       onClose={() => setLoginOpen(false)}
+
       onStaffLogin={() => {
-        setLoginOpen(false);
-        setAdminView(true);
+      setLoginOpen(false);
+      setAdminView(true);
       }}
-    />
+
+      onForgotPassword={() => {
+      setLoginOpen(false);
+      setResetPasswordOpen(true);
+      }}
+      />
 
         <JoinFlow
         isOpen={joinOpen}

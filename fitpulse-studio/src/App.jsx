@@ -4,10 +4,12 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import Hero from "./Hero";
+import AdminDashboard from "./AdminDashboard";
+import MemberDashboard from './MemberDashboard'
 
 function App() {
   return (
-    <Hero />
+    <MemberDashboard />
   );
 }
 

@@ -63,6 +63,12 @@ button {
   display: block;
 }
 
+.footer-logo {
+  width: 91px;
+  height: auto;
+  display: block;
+}
+
 .header-actions {
   display: flex;
   align-items: center;

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "./LoginModal.css";
 
 const LoginModal = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [loginAs, setLoginAs] = useState("Member");
 
@@ -27,272 +26,189 @@ const LoginModal = ({ isOpen, onClose }) => {
 
 
         {/* =================================
-            TABS
+            LOGIN HEADER
         ================================= */}
 
-        <div className="login-tabs">
+        <div className="login-header">
+          <h2>WELCOME BACK</h2>
 
-          <button
-            className={activeTab === "login" ? "tab-active" : ""}
-            onClick={() => setActiveTab("login")}
-          >
-            Login
-          </button>
+          <p>
+            Login to your FitPulse Studio account
+          </p>
+        </div>
 
-          <button
-            className={activeTab === "signup" ? "tab-active" : ""}
-            onClick={() => setActiveTab("signup")}
-          >
-            Sign Up
+
+        {/* =================================
+            SOCIAL LOGIN
+        ================================= */}
+
+        <div className="social-login">
+
+          <button className="social-login-btn">
+            <span className="google-icon">
+              G
+            </span>
+
+            Continue with Google
           </button>
 
         </div>
 
 
-        {activeTab === "login" ? (
+        {/* =================================
+            OR DIVIDER
+        ================================= */}
 
-          <>
-            {/* =================================
-                SOCIAL LOGIN
-            ================================= */}
+        <div className="login-divider">
 
-            <div className="social-login">
+          <span></span>
 
-              <button className="social-login-btn">
-                <span className="google-icon">⊗</span>
-                Continue with Google
-              </button>
+          <p>OR</p>
 
-              <button className="social-login-btn">
-                <span className="apple-icon">●</span>
-                Continue with Apple
-              </button>
+          <span></span>
 
-            </div>
+        </div>
 
 
-            {/* =================================
-                OR DIVIDER
-            ================================= */}
+        {/* =================================
+            LOGIN FORM
+        ================================= */}
 
-            <div className="login-divider">
-              <span></span>
-              <p>OR</p>
-              <span></span>
-            </div>
+        <form
+          className="login-form"
+          onSubmit={(e) => {
+            e.preventDefault();
 
+            console.log("Login submitted");
+            console.log("Login as:", loginAs);
+          }}
+        >
 
-            {/* =================================
-                LOGIN FORM
-            ================================= */}
+          {/* LOGIN AS */}
 
-            <form
-              className="login-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                console.log("Login submitted");
-              }}
-            >
+          <div className="input-group">
 
-              {/* LOGIN AS */}
+            <label>
+              Login As
+            </label>
 
-              <div className="input-group">
+            <div className="select-wrapper">
 
-                <label>
-                  Login As
-                </label>
-
-                <div className="select-wrapper">
-
-                  <select
-                    value={loginAs}
-                    onChange={(e) => setLoginAs(e.target.value)}
-                  >
-                    <option value="Member">
-                      Member
-                    </option>
-
-                    <option value="Staff">
-                      Staff
-                    </option>
-                  </select>
-
-                  <span className="select-arrow">
-                    ˅
-                  </span>
-
-                </div>
-
-              </div>
-
-
-              {/* EMAIL */}
-
-              <div className="input-group">
-
-                <label>
-                  Email Address
-                </label>
-
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                />
-
-              </div>
-
-
-              {/* PASSWORD */}
-
-              <div className="input-group">
-
-                <label>
-                  Password
-                </label>
-
-                <div className="password-wrapper">
-
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    required
-                  />
-
-                  <button
-                    type="button"
-                    className="password-toggle"
-                    onClick={() =>
-                      setShowPassword(!showPassword)
-                    }
-                    aria-label="Toggle password visibility"
-                  >
-                    {showPassword ? "◉" : "◌"}
-                  </button>
-
-                </div>
-
-              </div>
-
-
-              {/* REMEMBER + FORGOT */}
-
-              <div className="login-options">
-
-                <label className="remember-me">
-
-                  <input
-                    type="checkbox"
-                  />
-
-                  <span className="custom-checkbox"></span>
-
-                  <span>
-                    Remember me
-                  </span>
-
-                </label>
-
-                <button
-                  type="button"
-                  className="forgot-password"
-                >
-                  Forgot password?
-                </button>
-
-              </div>
-
-
-              {/* LOGIN */}
-
-              <button
-                type="submit"
-                className="modal-login-btn"
+              <select
+                value={loginAs}
+                onChange={(e) =>
+                  setLoginAs(e.target.value)
+                }
               >
-                LOGIN
-              </button>
 
-            </form>
+                <option value="Member">
+                  Member
+                </option>
 
+                <option value="Staff">
+                  Staff
+                </option>
 
-            {/* FOOTER */}
+              </select>
 
-            <p className="login-footer-text">
-              Don't have an account?
-              <button
-                onClick={() => setActiveTab("signup")}
-              >
-                Sign up
-              </button>
-            </p>
-
-          </>
-
-        ) : (
-
-          /* =================================
-             SIGN UP
-          ================================= */
-
-          <div className="signup-content">
-
-            <div className="signup-icon">
-              +
-            </div>
-
-            <h2>
-              Create Your Account
-            </h2>
-
-            <p>
-              Join FitPulse Studio and start your
-              fitness journey today.
-            </p>
-
-            <div className="signup-fields">
-
-              <div className="input-group">
-                <label>Full Name</label>
-                <input
-                  type="text"
-                  placeholder="Your full name"
-                />
-              </div>
-
-              <div className="input-group">
-                <label>Email Address</label>
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                />
-              </div>
-
-              <div className="input-group">
-                <label>Password</label>
-                <input
-                  type="password"
-                  placeholder="Create a password"
-                />
-              </div>
-
-              <button className="modal-login-btn">
-                CREATE ACCOUNT
-              </button>
+              <span className="select-arrow">
+                ˅
+              </span>
 
             </div>
-
-            <p className="login-footer-text">
-              Already have an account?
-              <button
-                onClick={() => setActiveTab("login")}
-              >
-                Login
-              </button>
-            </p>
 
           </div>
 
-        )}
+
+          {/* EMAIL */}
+
+          <div className="input-group">
+
+            <label>
+              Email Address
+            </label>
+
+            <input
+              type="email"
+              placeholder="you@example.com"
+              required
+            />
+
+          </div>
+
+
+          {/* PASSWORD */}
+
+          <div className="input-group">
+
+            <label>
+              Password
+            </label>
+
+            <div className="password-wrapper">
+
+              <input
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                placeholder="••••••••"
+                required
+              />
+
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
+              >
+                {showPassword ? "◉" : "◌"}
+              </button>
+
+            </div>
+
+          </div>
+
+
+          {/* REMEMBER + FORGOT */}
+
+          <div className="login-options">
+
+            <label className="remember-me">
+
+              <input type="checkbox" />
+
+              <span className="custom-checkbox"></span>
+
+              <span>
+                Remember me
+              </span>
+
+            </label>
+
+
+            <button
+              type="button"
+              className="forgot-password"
+            >
+              Forgot password?
+            </button>
+
+          </div>
+
+
+          {/* LOGIN BUTTON */}
+
+          <button
+            type="submit"
+            className="modal-login-btn"
+          >
+            LOGIN
+          </button>
+
+        </form>
 
       </div>
 

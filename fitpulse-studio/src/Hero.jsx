@@ -346,38 +346,16 @@ const Hero = () => {
 
           <div className="footer-brand">
 
-            <h3>
-              FITPULSE STUDIO
-            </h3>
-
-            <span>
-              DESIGNED FOR RESULTS
-            </span>
+            <img
+            src="/fitpulsetext.png"
+            alt="FitPulse Studio"
+            className="foooter-logo"
+            />
 
             <p>
               FitPulse Studio is more than a gym—it's a
               community designed to help you achieve your goals.
             </p>
-
-            <div className="social-icons">
-
-              <a href="#" aria-label="Facebook">
-                f
-              </a>
-
-              <a href="#" aria-label="Instagram">
-                ◎
-              </a>
-
-              <a href="#" aria-label="Twitter">
-                ♥
-              </a>
-
-              <a href="#" aria-label="YouTube">
-                ▶
-              </a>
-
-            </div>
 
           </div>
 
@@ -386,15 +364,15 @@ const Hero = () => {
               QUICK LINKS
           ================================= */}
 
-          <div className="footer-column">
+          <div className="footer-column" style={{ flexWrap: 'wrap', justifyContent: 'center', textAlign: 'center' }}>
 
             <h4>
               QUICK LINKS
             </h4>
 
-            <div className="footer-links">
+            <div className="footer-links" >
 
-              <a href="#home">
+              <a href="#home" >
                 Home
               </a>
 
@@ -493,7 +471,7 @@ const Hero = () => {
 
             </div>
 
-            <button className="footer-join">
+            <button className="footer-join" onClick={() => setJoinOpen(true)}>
               JOIN NOW
             </button>
 

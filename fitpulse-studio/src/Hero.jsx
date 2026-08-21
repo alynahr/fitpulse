@@ -4,6 +4,9 @@ import LoginModal from "./LoginModal";
 import JoinFlow from "./JoinFlow";
 import AdminDashboard from "./AdminDashboard";
 import ResetPassword from "./ResetPassword";
+import MemberDashboard from "./MemberDashboard";
+import heroImage from "./assets/hero.png";
+import AppIcon from "./components/AppIcon";
 
 const Hero = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,6 +14,7 @@ const Hero = () => {
   const [joinOpen, setJoinOpen] = useState(false);
   const [membershipPreview, setMembershipPreview] = useState(false);
   const [adminView, setAdminView] = useState(false);
+  const [memberView, setMemberView] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
 
   const openJoinFlow = () => {
@@ -30,6 +34,9 @@ const Hero = () => {
   if (adminView) {
     return <AdminDashboard onLogout={() => setAdminView(false)} />;
   }
+  if (memberView) {
+    return <MemberDashboard onLogout={() => setMemberView(false)} />;
+  }
   if (resetPasswordOpen) {
   return (
     <ResetPassword
@@ -43,200 +50,40 @@ const Hero = () => {
   return (
     <div className="fitpulse-page">
 
-      {/* =====================================
-          MOBILE HEADER
-      ===================================== */}
-
-      <header className="mobile-header">
-
-        <img
-          src="/fitpulsetext.png"
-          alt="FitPulse Studio"
-          className="mobile-logo"
-        />
-
-        <div className="header-actions">
-
-          <button className="header-join" onClick={openJoinFlow}>
-            JOIN NOW
-          </button>
-
-          <button
-            className="menu-btn"
-            onClick={() => setMenuOpen(true)}
-            aria-label="Open navigation"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-
-        </div>
-
-      </header>
-
-
-      {/* =====================================
-          MOBILE SIDE NAVIGATION
-      ===================================== */}
-
-      <div
-        className={`menu-overlay ${menuOpen ? "show" : ""}`}
-        onClick={closeMenu}
-      ></div>
-
-      <aside
-        className={`mobile-drawer ${menuOpen ? "open" : ""}`}
-      >
-
-        <div className="drawer-header">
-
-          <img
-            src="/fitpulsetext.png"
-            alt="FitPulse Studio"
-            className="drawer-logo"
-          />
-
-          <button
-            className="drawer-close"
-            onClick={closeMenu}
-            aria-label="Close navigation"
-          >
-            ×
-          </button>
-
-        </div>
-
-
-        <div className="drawer-divider"></div>
-
-
-        <nav className="drawer-navigation">
-
-          <a
-            href="#home"
-            className="drawer-active"
-            onClick={closeMenu}
-          >
-            HOME
-          </a>
-
-          <a
-            href="#classes"
-            onClick={closeMenu}
-          >
-            CLASSES
-          </a>
-
-          <a
-            href="#membership"
-            onClick={(event) => {
-              event.preventDefault();
-              closeMenu();
-              openMembershipPreview();
-            }}
-          >
-            MEMBERSHIP
-          </a>
-
-          <a
-            href="#trainers"
-            onClick={closeMenu}
-          >
-            TRAINERS
-          </a>
-
-          <a
-            href="#about"
-            onClick={closeMenu}
-          >
-            ABOUT US
-          </a>
-
-          <a
-            href="#contact"
-            onClick={closeMenu}
-          >
-            CONTACT
-          </a>
-
+      <header className="public-header">
+        <a className="public-brand" href="#home" aria-label="FitPulse Studio home">
+          <img src="/fitpulsetext.png" alt="FitPulse Studio" />
+        </a>
+        <button className="public-menu-button" onClick={() => setMenuOpen(true)} aria-label="Open navigation"><AppIcon name="menu" size={19} /></button>
+        <nav className="public-navigation" aria-label="Public navigation">
+          <a className="active" href="#home">HOME</a>
+          <a href="#classes">CLASSES</a>
+          <a href="#membership" onClick={(event) => { event.preventDefault(); openMembershipPreview(); }}>MEMBERSHIP</a>
+          <a href="#trainers">TRAINERS</a>
+          <a href="#about">ABOUT US</a>
+          <a href="#contact">CONTACT</a>
         </nav>
-
-
-        <div className="drawer-bottom">
-
-          <p>
-            Ready to start your fitness journey?
-          </p>
-
-          <button className="drawer-join" onClick={openJoinFlow}>
-            JOIN NOW
-          </button>
-
+        <div className="public-actions">
+          <button className="public-login" onClick={() => setLoginOpen(true)}>LOGIN</button>
+          <button className="public-join" onClick={openJoinFlow}>JOIN NOW</button>
         </div>
-
+      </header>
+      <div className={`public-menu-overlay ${menuOpen ? "show" : ""}`} onClick={closeMenu} />
+      <aside className={`public-drawer ${menuOpen ? "open" : ""}`} aria-label="Mobile navigation">
+        <div className="public-drawer-head">
+          <span className="public-drawer-title">FITPULSE STUDIO</span>
+          <button className="public-drawer-close" onClick={closeMenu} aria-label="Close navigation"><AppIcon name="x" size={18} /></button>
+        </div>
+        <nav className="public-drawer-nav">
+          <a href="#home" onClick={closeMenu}>HOME</a>
+          <a href="#classes" onClick={closeMenu}>CLASSES</a>
+          <a href="#membership" onClick={(event) => { event.preventDefault(); closeMenu(); openMembershipPreview(); }}>MEMBERSHIP</a>
+          <a href="#trainers" onClick={closeMenu}>TRAINERS</a>
+          <a href="#about" onClick={closeMenu}>ABOUT US</a>
+          <a href="#contact" onClick={closeMenu}>CONTACT</a>
+        </nav>
+        <button className="public-join public-drawer-join" onClick={openJoinFlow}>JOIN NOW</button>
       </aside>
-
-
-      {/* =====================================
-          DESKTOP HEADER
-      ===================================== */}
-
-      <header className="desktop-header">
-
-        <img
-          src="/fitpulsetext.png"
-          alt="FitPulse Studio"
-          className="desktop-logo"
-        />
-
-        <nav>
-
-          <a className="active" href="#home">
-            HOME
-          </a>
-
-          <a href="#classes">
-            CLASSES
-          </a>
-
-          <a
-            href="#membership"
-            onClick={(event) => {
-              event.preventDefault();
-              openMembershipPreview();
-            }}
-          >
-            MEMBERSHIP
-          </a>
-
-          <a href="#trainers">
-            TRAINERS
-          </a>
-
-          <a href="#about">
-            ABOUT US
-          </a>
-
-          <a href="#contact">
-            CONTACT
-          </a>
-
-        </nav>
-
-        <div className="desktop-actions">
-
-          <button className="login-btn" onClick={() => setLoginOpen(true)}>
-            LOGIN
-          </button>
-
-          <button className="desktop-join" onClick={openJoinFlow}>
-            JOIN NOW
-          </button>
-
-        </div>
-
-      </header>
 
 
       {/* =====================================
@@ -246,7 +93,7 @@ const Hero = () => {
       <section className="hero-section" id="home">
 
         <div className="hero-content">
-
+          <span className="hero-kicker">FITNESS <b>•</b> COMMUNITY <b>•</b> RESULTS</span>
           <h1>
             TRAIN.
             <br />
@@ -267,12 +114,13 @@ const Hero = () => {
               JOIN NOW
             </button>
 
-            <button className="hero-login" onClick={() => setLoginOpen(true)}>
-              LOGIN
-            </button>
 
           </div>
 
+        </div>
+        <div className="hero-visual" aria-label="FitPulse training atmosphere">
+          <img src={heroImage} alt="Athletes training at FitPulse Studio" />
+          <div className="hero-visual-badge"><strong>60+</strong><span>WEEKLY CLASSES</span></div>
         </div>
 
 
@@ -283,25 +131,25 @@ const Hero = () => {
         <div className="feature-grid" id="classes">
 
           <FeatureCard
-            icon="⚒"
+            icon="dumbbell"
             title="MODERN EQUIPMENT"
             description="Train with state-of-the-art machines and facilities."
           />
 
           <FeatureCard
-            icon="●"
+            icon="user"
             title="EXPERT TRAINERS"
             description="Certified professionals here to guide you."
           />
 
           <FeatureCard
-            icon="■"
+            icon="calendar"
             title="DIVERSE CLASSES"
             description="From HIIT to Yoga, find the class that fits you."
           />
 
           <FeatureCard
-            icon="●"
+            icon="users"
             title="STRONG COMMUNITY"
             description="Join a supportive community that motivates you."
           />
@@ -315,7 +163,7 @@ const Hero = () => {
           RESULTS
       ===================================== */}
 
-      <section className="results-section">
+      <section className="results-section" id="about">
 
         <div className="results-heading">
 
@@ -341,25 +189,25 @@ const Hero = () => {
         <div className="stats-grid">
 
           <StatCard
-            icon="●"
+            icon="users"
             number="2,500+"
             label="ACTIVE MEMBERS"
           />
 
           <StatCard
-            icon="⚒"
+            icon="calendar"
             number="60+"
             label="WEEKLY CLASSES"
           />
 
           <StatCard
-            icon="●"
+            icon="user"
             number="20+"
             label="EXPERT TRAINERS"
           />
 
           <StatCard
-            icon="★"
+            icon="star"
             number="4.9/5"
             label="MEMBER RATING"
           />
@@ -535,7 +383,7 @@ const Hero = () => {
 
             </div>
 
-            <button className="footer-join">
+            <button className="footer-join" onClick={openJoinFlow}>
               JOIN NOW
             </button>
 
@@ -582,6 +430,11 @@ const Hero = () => {
       setAdminView(true);
       }}
 
+      onMemberLogin={() => {
+      setLoginOpen(false);
+      setMemberView(true);
+      }}
+
       onForgotPassword={() => {
       setLoginOpen(false);
       setResetPasswordOpen(true);
@@ -612,7 +465,7 @@ const FeatureCard = ({
     <div className="feature-card">
 
       <div className="feature-icon">
-        {icon}
+        <AppIcon name={icon} size={20} />
       </div>
 
       <h3>
@@ -642,7 +495,7 @@ const StatCard = ({
     <div className="stat-card">
 
       <div className="stat-icon">
-        {icon}
+        <AppIcon name={icon} size={17} />
       </div>
 
       <strong>

@@ -7,7 +7,7 @@ const recentCheckIns = [
   ["Mark Dela Cruz", "FP-2024-0112", "8:35 AM"],
 ];
 
-const CheckInKiosk = ({ onBack, onAttendance, onSchedule, onReports, onLogout }) => {
+const CheckInKiosk = () => {
   const [memberId, setMemberId] = useState("");
   const [message, setMessage] = useState("");
 
@@ -25,22 +25,7 @@ const CheckInKiosk = ({ onBack, onAttendance, onSchedule, onReports, onLogout })
   };
 
   return (
-    <div className="admin-page checkin-page">
-      <aside className="admin-sidebar">
-        <div className="admin-brand"><span className="brand-mark">+</span><strong>FITPULSE</strong><small>STUDIO</small></div>
-        <p className="sidebar-label">STAFF PANEL</p>
-        <nav className="admin-nav">
-          <button className="admin-nav-item" onClick={onBack}><span>##</span>Members</button>
-          <button className="admin-nav-item selected"><span>四</span>Check-In</button>
-          <button className="admin-nav-item" onClick={onAttendance}><span>[]</span>Attendance Log</button>
-          <button className="admin-nav-item" onClick={onSchedule}><span>--</span>Class Schedule</button>
-          <button className="admin-nav-item" onClick={onReports}><span>||</span>Reports</button>
-          <button className="admin-nav-item"><span>*</span>Settings</button>
-        </nav>
-        <button className="admin-logout" onClick={onLogout}><span>&lt;-</span>Logout</button>
-      </aside>
-
-      <main className="admin-main">
+    <div className="checkin-page">
         <header className="checkin-header">
           <div><span>CHECK-IN KIOSK</span><h1>Member Check-In</h1></div>
           <div className="checkin-user"><b>o</b><span className="kiosk-avatar">FP</span><strong>John Staff<small>Front Desk</small></strong></div>
@@ -64,7 +49,6 @@ const CheckInKiosk = ({ onBack, onAttendance, onSchedule, onReports, onLogout })
             <section className="recent-panel"><h2>RECENT CHECK-INS</h2>{recentCheckIns.map(([name, id, time]) => <div className="recent-row" key={id}><span className="recent-avatar"></span><div><strong>{name}</strong><small>{id}</small></div><time>{time}</time><em>CHECKED IN</em></div>)}</section>
           </div>
         </div>
-      </main>
     </div>
   );
 };

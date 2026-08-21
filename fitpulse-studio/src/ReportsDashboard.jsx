@@ -3,26 +3,11 @@ import "./ReportsDashboard.css";
 
 const reportTabs = ["Attendance Summary Report", "Membership Status & Renewal", "Class Popularity & Capacity"];
 
-const ReportsDashboard = ({ onBack, onCheckIn, onAttendance, onSchedule, onLogout }) => {
+const ReportsDashboard = () => {
   const [activeReport, setActiveReport] = useState(0);
 
   return (
-    <div className="admin-page reports-page">
-      <aside className="admin-sidebar">
-        <div className="admin-brand"><span className="brand-mark">+</span><strong>FITPULSE</strong><small>STUDIO</small></div>
-        <p className="sidebar-label">STAFF PANEL</p>
-        <nav className="admin-nav">
-          <button className="admin-nav-item" onClick={onBack}><span>##</span>Members</button>
-          <button className="admin-nav-item" onClick={onCheckIn}><span>四</span>Check-In</button>
-          <button className="admin-nav-item" onClick={onAttendance}><span>[]</span>Attendance Log</button>
-          <button className="admin-nav-item" onClick={onSchedule}><span>--</span>Class Schedule</button>
-          <button className="admin-nav-item selected"><span>||</span>Reports</button>
-          <button className="admin-nav-item"><span>*</span>Settings</button>
-        </nav>
-        <button className="admin-logout" onClick={onLogout}><span>&lt;-</span>Logout</button>
-      </aside>
-
-      <main className="admin-main">
+    <div className="reports-page">
         <header className="reports-header"><div><span>REPORTS</span><h1>Reports Dashboard</h1><p>Generate, preview, and export reports to keep your gym running smoothly.</p></div><div className="reports-user"><b>o</b><span className="report-avatar">JS</span><strong>John Stafford<small>Admin</small></strong></div></header>
         <div className="reports-content">
           <div className="report-toolbar"><nav>{reportTabs.map((tab, index) => <button className={activeReport === index ? "active" : ""} onClick={() => setActiveReport(index)} key={tab}>{tab}</button>)}</nav><button className="export-all">Download All Reports</button><button className="generate-report">+ &nbsp; Generate New Report</button></div>
@@ -33,7 +18,6 @@ const ReportsDashboard = ({ onBack, onCheckIn, onAttendance, onSchedule, onLogou
           </div>
           <div className="reports-note">i &nbsp; Reports are optimized for printing on A4/Letter size. Click Export to download a print-ready PDF.</div>
         </div>
-      </main>
     </div>
   );
 };

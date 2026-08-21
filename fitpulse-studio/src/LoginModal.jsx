@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import "./LoginModal.css";
+import AppIcon from "./components/AppIcon";
 
 const LoginModal = ({
   isOpen,
   onClose,
   onForgotPassword,
   onStaffLogin,
+  onMemberLogin,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginAs, setLoginAs] = useState("Member");
@@ -23,8 +25,9 @@ const LoginModal = ({
       return;
     }
 
-    // MEMBER LOGIN
-    console.log("Member login submitted");
+    if (onMemberLogin) {
+      onMemberLogin();
+    }
   };
 
   return (
@@ -44,7 +47,7 @@ const LoginModal = ({
           onClick={onClose}
           aria-label="Close login"
         >
-          ×
+          <AppIcon name="x" size={18} />
         </button>
 
 
@@ -172,7 +175,7 @@ const LoginModal = ({
                   setShowPassword(!showPassword)
                 }
               >
-                {showPassword ? "◉" : "◌"}
+                <AppIcon name={showPassword ? "eyeOff" : "eye"} size={16} />
               </button>
 
             </div>

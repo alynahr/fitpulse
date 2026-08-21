@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./ResetPassword.css";
+import AppIcon from "./components/AppIcon";
 
 const ResetPassword = ({ onBack }) => {
   const [email, setEmail] = useState("");
@@ -26,7 +27,7 @@ const ResetPassword = ({ onBack }) => {
   className="reset-back"
   onClick={onBack}
 >
-  ← Back to Login
+  <><AppIcon name="chevronLeft" size={15} /> Back to Login</>
 </button>
 
         {/* =====================================
@@ -120,7 +121,7 @@ const ResetPassword = ({ onBack }) => {
             <div className="reset-input-wrapper">
 
               <span className="email-icon">
-                ✉
+                <AppIcon name="mail" size={15} />
               </span>
 
               <input

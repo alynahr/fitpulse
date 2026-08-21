@@ -1,29 +1,14 @@
 import React, { useState } from "react";
 import "./MemberProfile.css";
 
-const MemberProfile = ({ onBack, onCheckIn, onAttendance, onSchedule, onReports, onLogout }) => {
+const MemberProfile = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState("Overview");
   const [status, setStatus] = useState("Active");
   const [tier, setTier] = useState("Premium Plan");
   const [memberName, setMemberName] = useState("");
 
   return (
-    <div className="admin-page member-profile-page">
-      <aside className="admin-sidebar">
-        <div className="admin-brand"><span className="brand-mark">+</span><strong>FITPULSE</strong><small>STUDIO</small></div>
-        <p className="sidebar-label">STAFF PANEL</p>
-        <nav className="admin-nav">
-          <button className="admin-nav-item selected"><span>##</span>Members</button>
-          <button className="admin-nav-item" onClick={onCheckIn}><span>四</span>Check-In</button>
-          <button className="admin-nav-item" onClick={onAttendance}><span>[]</span>Attendance Log</button>
-          <button className="admin-nav-item" onClick={onSchedule}><span>--</span>Class Schedule</button>
-          <button className="admin-nav-item" onClick={onReports}><span>||</span>Reports</button>
-          <button className="admin-nav-item"><span>*</span>Settings</button>
-        </nav>
-        <button className="admin-logout" onClick={onLogout}><span>&lt;-</span>Logout</button>
-      </aside>
-
-      <main className="admin-main">
+    <div className="member-profile-page">
         <header className="admin-header">
           <div className="admin-header-copy"><h1>Member Profile</h1><p>Staff Panel / Gym Management</p></div>
           <div className="admin-profile"><span className="date">[ ] &nbsp; Oct 31, 2024</span><span><strong>Admin</strong><small>Gym Manager</small></span><span className="profile-avatar">A</span></div>
@@ -72,7 +57,6 @@ const MemberProfile = ({ onBack, onCheckIn, onAttendance, onSchedule, onReports,
             </section>
           </div>
         </div>
-      </main>
     </div>
   );
 };

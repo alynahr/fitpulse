@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from "react";
 import "./MemberDashboard.css";
+import MemberSidebar from "./components/MemberSidebar";
+import AppIcon from "./components/AppIcon";
 
 /* ---------------------------------------------------------- */
-/* Icons — small inline feather-style SVGs, no external deps  */
-/* ---------------------------------------------------------- */
+/* Legacy inline icon map retained only for compatibility.
+// ----------------------------------------------------------
 const ICONS = {
   grid: <><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></>,
   user: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></>,
@@ -34,6 +36,8 @@ const Icon = ({ name, size = 16 }) => (
     {ICONS[name]}
   </svg>
 );
+*/
+const Icon = AppIcon;
 
 /* ---------------------------------------------------------- */
 /* Data                                                        */
@@ -130,18 +134,6 @@ const PLANS = [
   { key: "Elite", name: "Elite", price: "$79.99", features: ["All Premium Benefits", "2 Personal Training Sessions", "Guest Passes (2/mo)"] },
 ];
 
-const NAV = [
-  { key: "dashboard", label: "Dashboard", icon: "grid" },
-  { key: "profile", label: "My Profile", icon: "user" },
-  { key: "membership", label: "Membership", icon: "award" },
-  { key: "bookings", label: "My Bookings", icon: "calendar" },
-  { key: "schedule", label: "Class Schedule", icon: "clock" },
-  { key: "idpass", label: "My ID Pass", icon: "key" },
-  { key: "attendance", label: "Attendance", icon: "checkCircle" },
-  { key: "billing", label: "Billing History", icon: "card" },
-  { key: "settings", label: "Settings", icon: "settings" },
-];
-
 /* ---------------------------------------------------------- */
 /* Shared layout bits                                          */
 /* ---------------------------------------------------------- */
@@ -193,7 +185,7 @@ const Dashboard = ({ go, bookingsCount }) => (
                 <strong>{MEMBER.validUntil}</strong>
               </div>
             </div>
-            <button className="mv-btn-primary mv-full" onClick={() => go("profile")}>RENEW NOW</button>
+            <button className="mv-btn-primary mv-full" onClick={() => go("settings")}>RENEW NOW</button>
           </section>
 
           <section className="mv-panel">
@@ -761,36 +753,9 @@ const MemberDashboard = ({ onLogout }) => {
 
   return (
     <div className="mv-page">
-      <button className="mv-hamburger" onClick={() => setNavOpen(true)} aria-label="Open menu">
-        <Icon name="menu" size={18} />
-      </button>
-
-      {navOpen && <div className="mv-nav-overlay" onClick={() => setNavOpen(false)} />}
-
-      <aside className={`mv-sidebar ${navOpen ? "open" : ""}`}>
-        <div className="mv-brand">
-          <span className="mv-brand-mark">⚡</span><strong>FITPULSE</strong><small>STUDIO</small>
-          <button className="mv-nav-close" onClick={() => setNavOpen(false)} aria-label="Close menu">
-            <Icon name="x" size={16} />
-          </button>
-        </div>
-        <nav className="mv-nav">
-          {NAV.map((item) => (
-            <button
-              key={item.key}
-              className={`mv-nav-item ${view === item.key ? "selected" : ""}`}
-              onClick={() => selectNav(item.key)}
-            >
-              <span><Icon name={item.icon} size={15} /></span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <button className="mv-logout" onClick={onLogout}>
-          <span><Icon name="logOut" size={15} /></span>Logout
-        </button>
-      </aside>
-      <main className="mv-main">{renderView()}</main>
+      <button className="fp-mobile-menu" onClick={() => setNavOpen(true)} aria-label="Open menu"><Icon name="menu" size={19} /></button>
+      <MemberSidebar activePage={view} onNavigate={selectNav} onLogout={onLogout} open={navOpen} onClose={() => setNavOpen(false)} />
+      <main className="mv-main fp-shell-main">{renderView()}</main>
     </div>
   );
 };

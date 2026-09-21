@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import Button from "react-bootstrap/Button";
 import "./MemberDashboard.css";
 import MemberSidebar from "./components/MemberSidebar";
 import AppIcon from "./components/AppIcon";
@@ -150,7 +151,7 @@ const TopBar = ({ eyebrow, title, sub, right }) => (
 
 const ProfileBadge = () => (
   <div className="mv-profile-badge">
-    <button className="mv-icon-btn" aria-label="Notifications"><Icon name="bell" /></button>
+    <Button className="mv-icon-btn" aria-label="Notifications" variant="link"><Icon name="bell" /></Button>
     <div className="mv-avatar-wrap">
       <span className="mv-avatar">{MEMBER.initials}</span>
     </div>
@@ -185,7 +186,7 @@ const Dashboard = ({ go, bookingsCount }) => (
                 <strong>{MEMBER.validUntil}</strong>
               </div>
             </div>
-            <button className="mv-btn-primary mv-full" onClick={() => go("settings")}>RENEW NOW</button>
+            <Button className="mv-btn-primary mv-full" onClick={() => go("settings")} variant="primary">RENEW NOW</Button>
           </section>
 
           <section className="mv-panel">
@@ -202,7 +203,7 @@ const Dashboard = ({ go, bookingsCount }) => (
                 </div>
               </div>
             </div>
-            <button className="mv-btn-ghost mv-full" onClick={() => go("bookings")}>VIEW BOOKING</button>
+            <Button className="mv-btn-ghost mv-full" onClick={() => go("bookings")} variant="outline-light">VIEW BOOKING</Button>
           </section>
         </div>
 
@@ -214,10 +215,10 @@ const Dashboard = ({ go, bookingsCount }) => (
           <section className="mv-panel">
             <p className="mv-label">QUICK ACTIONS</p>
             <div className="mv-quick-actions">
-              <button onClick={() => go("schedule")}><Icon name="plus" /> Book a Class</button>
-              <button onClick={() => go("bookings")}><Icon name="calendar" /> My Bookings</button>
-              <button onClick={() => go("idpass")}><Icon name="key" /> My ID Pass</button>
-              <button onClick={() => go("billing")}><Icon name="card" /> View Billing</button>
+              <Button onClick={() => go("schedule")} variant="link"><Icon name="plus" /> Book a Class</Button>
+              <Button onClick={() => go("bookings")} variant="link"><Icon name="calendar" /> My Bookings</Button>
+              <Button onClick={() => go("idpass")} variant="link"><Icon name="key" /> My ID Pass</Button>
+              <Button onClick={() => go("billing")} variant="link"><Icon name="card" /> View Billing</Button>
             </div>
           </section>
         </div>
@@ -229,7 +230,7 @@ const Dashboard = ({ go, bookingsCount }) => (
           <h3>Get 1 week FREE</h3>
           <p>For every successful referral that signs up for any premium tier plan.</p>
         </div>
-        <button className="mv-btn-primary">REFER NOW</button>
+        <Button className="mv-btn-primary" variant="primary">REFER NOW</Button>
       </section>
     </div>
   </>
@@ -243,7 +244,7 @@ const ClassDetailModal = ({ cls, onClose, onBook, isBooked }) => (
     <div className="mv-modal" onClick={(e) => e.stopPropagation()}>
       <div className="mv-modal-head">
         <span className="mv-eyebrow">CLASS DETAILS</span>
-        <button className="mv-icon-btn" onClick={onClose}><Icon name="x" /></button>
+        <Button className="mv-icon-btn" onClick={onClose} variant="link"><Icon name="x" /></Button>
       </div>
       <div className="mv-modal-banner">
         <span>{cls.name}</span>
@@ -270,13 +271,14 @@ const ClassDetailModal = ({ cls, onClose, onBook, isBooked }) => (
           </div>
         </div>
 
-        <button
+        <Button
           className="mv-btn-primary mv-full"
           disabled={cls.spots >= cls.capacity || isBooked}
           onClick={() => onBook(cls)}
+          variant="primary"
         >
           {isBooked ? "ALREADY BOOKED" : cls.spots >= cls.capacity ? "CLASS FULL" : "BOOK CLASS"}
-        </button>
+        </Button>
       </div>
     </div>
   </div>
@@ -315,26 +317,28 @@ const ClassSchedule = ({ bookings, onAddBooking }) => {
 
         <div className="mv-schedule-toolbar">
           <div className="mv-month-nav">
-            <button className="mv-icon-btn"><Icon name="chevronLeft" /></button>
+            <Button className="mv-icon-btn" variant="link"><Icon name="chevronLeft" /></Button>
             <strong>May 2026</strong>
-            <button className="mv-icon-btn"><Icon name="chevronRight" /></button>
+            <Button className="mv-icon-btn" variant="link"><Icon name="chevronRight" /></Button>
           </div>
           <div className="mv-view-toggle">
-            <button className={viewMode === "List" ? "active" : ""} onClick={() => setViewMode("List")}>List</button>
-            <button className={viewMode === "Calendar" ? "active" : ""} onClick={() => setViewMode("Calendar")}>Calendar</button>
+            <Button className={viewMode === "List" ? "active" : ""} onClick={() => setViewMode("List")} variant="link">List</Button>
+            <Button className={viewMode === "Calendar" ? "active" : ""} onClick={() => setViewMode("Calendar")} variant="link">Calendar</Button>
           </div>
         </div>
 
         <div className="mv-week-strip">
           {WEEK_DAYS.map((d) => (
-            <button
+            <Button
               key={d.date}
               className={`mv-week-day ${selectedDate === d.date ? "active" : ""}`}
               onClick={() => setSelectedDate(d.date)}
+              type="button"
+              variant="link"
             >
               <span>{d.label}</span>
               <strong>{d.date}</strong>
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -358,13 +362,14 @@ const ClassSchedule = ({ bookings, onAddBooking }) => {
                 <div className={`mv-spots ${full ? "full" : ""}`}>
                   <Icon name="users" size={13} /> {cls.spots}/{cls.capacity}
                 </div>
-                <button
+                <Button
                   className={full ? "mv-btn-disabled" : "mv-btn-book"}
                   disabled={full}
                   onClick={() => setSelectedClass(cls)}
+                  variant={full ? "secondary" : "primary"}
                 >
                   {full ? "FULL" : booked ? "BOOKED" : "BOOK"}
-                </button>
+                </Button>
               </div>
             );
           })}
@@ -404,12 +409,12 @@ const MyBookings = ({ bookings, onCancel }) => {
       />
       <div className="mv-body">
         <div className="mv-tabs">
-          <button className={tab === "upcoming" ? "active" : ""} onClick={() => setTab("upcoming")}>
+          <Button className={tab === "upcoming" ? "active" : ""} onClick={() => setTab("upcoming")} variant="link">
             Upcoming ({bookings.length})
-          </button>
-          <button className={tab === "past" ? "active" : ""} onClick={() => setTab("past")}>
+          </Button>
+          <Button className={tab === "past" ? "active" : ""} onClick={() => setTab("past")} variant="link">
             Past Classes
-          </button>
+          </Button>
         </div>
 
         {list.length === 0 && <div className="mv-empty">Nothing here yet — book a class to see it show up.</div>}
@@ -425,8 +430,8 @@ const MyBookings = ({ bookings, onCancel }) => {
             <p className="mv-booking-time"><Icon name="clock" size={13} /> {b.date} · {b.time}</p>
             {tab === "upcoming" && (
               <div className="mv-booking-actions">
-                <button className="mv-btn-ghost"><Icon name="calendar" size={13} /> Add to Cal</button>
-                <button className="mv-btn-cancel" onClick={() => onCancel(b.id)}>Cancel</button>
+                <Button className="mv-btn-ghost" variant="outline-light"><Icon name="calendar" size={13} /> Add to Cal</Button>
+                <Button className="mv-btn-cancel" onClick={() => onCancel(b.id)} variant="outline-danger">Cancel</Button>
               </div>
             )}
           </div>
@@ -466,7 +471,7 @@ const MyIDPass = () => (
         <div className="mv-id-divider" />
         <p className="mv-id-valid">Valid until <strong>{MEMBER.validUntil}</strong></p>
         <p className="mv-muted">Show this code at the front desk</p>
-        <button className="mv-icon-btn mv-id-share" aria-label="Share pass"><Icon name="share" /></button>
+        <Button className="mv-icon-btn mv-id-share" aria-label="Share pass" variant="link"><Icon name="share" /></Button>
       </div>
     </div>
   </>
@@ -487,7 +492,7 @@ const Attendance = () => {
 
   return (
     <>
-      <TopBar eyebrow="ATTENDANCE" title="Attendance History" right={<><button className="mv-btn-ghost">Export Report</button><ProfileBadge /></>} />
+      <TopBar eyebrow="ATTENDANCE" title="Attendance History" right={<><Button className="mv-btn-ghost" variant="outline-light">Export Report</Button><ProfileBadge /></>} />
       <div className="mv-body">
         <div className="mv-stat-grid">
           {ATTENDANCE_STATS.map((s) => (
@@ -507,9 +512,9 @@ const Attendance = () => {
             <div className="mv-cal-head">
               <strong className="mv-panel-title mv-eyebrow-title">ACTIVITY CALENDAR</strong>
               <div className="mv-month-nav small">
-                <button className="mv-icon-btn"><Icon name="chevronLeft" /></button>
+                <Button className="mv-icon-btn" variant="link"><Icon name="chevronLeft" /></Button>
                 <span>May 2024</span>
-                <button className="mv-icon-btn"><Icon name="chevronRight" /></button>
+                <Button className="mv-icon-btn" variant="link"><Icon name="chevronRight" /></Button>
               </div>
               <div className="mv-legend"><span className="mv-muted">Less</span><i className="l1" /><i className="l2" /><i className="l3" /><span className="mv-muted">More</span></div>
             </div>
@@ -536,7 +541,7 @@ const Attendance = () => {
           <section className="mv-panel">
             <div className="mv-panel-title-row">
               <strong className="mv-panel-title mv-eyebrow-title">RECENT CHECK-INS</strong>
-              <button className="mv-link-btn" onClick={() => setShowAll(!showAll)}>{showAll ? "SHOW LESS" : "VIEW ALL"}</button>
+              <Button className="mv-link-btn" onClick={() => setShowAll(!showAll)} variant="link">{showAll ? "SHOW LESS" : "VIEW ALL"}</Button>
             </div>
             <div className="mv-checkin-list">
               {visibleCheckins.map((c, i) => (
@@ -550,7 +555,7 @@ const Attendance = () => {
                 </div>
               ))}
             </div>
-            <button className="mv-btn-ghost mv-full">VIEW FULL HISTORY</button>
+            <Button className="mv-btn-ghost mv-full" variant="outline-light">VIEW FULL HISTORY</Button>
           </section>
         </div>
       </div>
@@ -589,7 +594,7 @@ const ProfileSettings = ({ activePlan, onSwitchPlan, go }) => {
               <span className="mv-muted">Member ID: {MEMBER.memberId}</span>
             </div>
           </div>
-          <button className="mv-btn-ghost"><Icon name="edit" size={13} /> EDIT PROFILE</button>
+          <Button className="mv-btn-ghost" variant="outline-light"><Icon name="edit" size={13} /> EDIT PROFILE</Button>
         </section>
 
         <div className="mv-profile-grid">
@@ -602,7 +607,7 @@ const ProfileSettings = ({ activePlan, onSwitchPlan, go }) => {
               <label className="mv-field"><span>DATE OF BIRTH</span><input value={form.dob} onChange={update("dob")} /></label>
             </div>
             <label className="mv-field"><span>ADDRESS</span><input value={form.address} onChange={update("address")} /></label>
-            <button className="mv-btn-primary" onClick={handleSave}>SAVE CHANGES</button>
+            <Button className="mv-btn-primary" onClick={handleSave} variant="primary">SAVE CHANGES</Button>
             {saved && <span className="mv-saved-msg">Changes saved</span>}
           </section>
 
@@ -623,7 +628,7 @@ const ProfileSettings = ({ activePlan, onSwitchPlan, go }) => {
                 </div>
               </div>
             ))}
-            <button className="mv-btn-primary mv-full" onClick={() => go("billing")}>VIEW ALL TRANSACTIONS</button>
+            <Button className="mv-btn-primary mv-full" onClick={() => go("billing")} variant="primary">VIEW ALL TRANSACTIONS</Button>
           </section>
 
           <section className="mv-panel">
@@ -644,8 +649,8 @@ const ProfileSettings = ({ activePlan, onSwitchPlan, go }) => {
               <span className="mv-muted">Payment Method</span><strong>{MEMBER.paymentMethod}</strong>
             </div>
             <div className="mv-sub-actions">
-              <button className="mv-btn-primary">RENEW NOW</button>
-              <button className="mv-btn-danger">CANCEL MEMBERSHIP</button>
+              <Button className="mv-btn-primary" variant="primary">RENEW NOW</Button>
+              <Button className="mv-btn-danger" variant="danger">CANCEL MEMBERSHIP</Button>
             </div>
           </section>
 
@@ -658,13 +663,14 @@ const ProfileSettings = ({ activePlan, onSwitchPlan, go }) => {
                   <strong>{p.name}</strong>
                   <p className="mv-plan-price">{p.price}<span>/mo</span></p>
                   <ul>{p.features.map((f) => <li key={f}><Icon name="checkCircle" size={11} /> {f}</li>)}</ul>
-                  <button
+                  <Button
                     className={activePlan === p.key ? "mv-btn-disabled" : "mv-btn-ghost"}
                     disabled={activePlan === p.key}
                     onClick={() => onSwitchPlan(p.key)}
+                    variant={activePlan === p.key ? "secondary" : "outline-light"}
                   >
                     {activePlan === p.key ? "CURRENT PLAN" : "SWITCH PLAN"}
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -753,7 +759,7 @@ const MemberDashboard = ({ onLogout }) => {
 
   return (
     <div className="mv-page">
-      <button className="fp-mobile-menu" onClick={() => setNavOpen(true)} aria-label="Open menu"><Icon name="menu" size={19} /></button>
+      <Button className="fp-mobile-menu" onClick={() => setNavOpen(true)} aria-label="Open menu" variant="link"><Icon name="menu" size={19} /></Button>
       <MemberSidebar activePage={view} onNavigate={selectNav} onLogout={onLogout} open={navOpen} onClose={() => setNavOpen(false)} />
       <main className="mv-main fp-shell-main">{renderView()}</main>
     </div>

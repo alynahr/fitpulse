@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
 import "./LoginModal.css";
 import AppIcon from "./components/AppIcon";
 
@@ -41,14 +42,15 @@ const LoginModal = ({
       >
 
         {/* CLOSE BUTTON */}
-        <button
+        <Button
           type="button"
           className="login-close"
           onClick={onClose}
           aria-label="Close login"
+          variant="link"
         >
           <AppIcon name="x" size={18} />
-        </button>
+        </Button>
 
 
         {/* LOGIN HEADER */}
@@ -64,28 +66,30 @@ const LoginModal = ({
         {/* SOCIAL LOGIN */}
         <div className="social-login">
 
-          <button
+          <Button
             type="button"
             className="social-login-btn"
+            variant="outline-light"
           >
             <span className="google-icon">
               G
             </span>
 
             Continue with Google
-          </button>
+          </Button>
 
 
-          <button
+          <Button
             type="button"
             className="social-login-btn"
+            variant="outline-light"
           >
             <span className="apple-icon">
               ●
             </span>
 
             Continue with Apple
-          </button>
+          </Button>
 
         </div>
 
@@ -147,7 +151,6 @@ const LoginModal = ({
             <input
               type="email"
               placeholder="you@example.com"
-              required
             />
 
           </div>
@@ -165,7 +168,6 @@ const LoginModal = ({
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                required
               />
 
               <button
@@ -174,6 +176,7 @@ const LoginModal = ({
                 onClick={() =>
                   setShowPassword(!showPassword)
                 }
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 <AppIcon name={showPassword ? "eyeOff" : "eye"} size={16} />
               </button>
@@ -201,7 +204,7 @@ const LoginModal = ({
             </label>
 
 
-            <button
+            <Button
               type="button"
               className="forgot-password"
               onClick={() => {
@@ -209,20 +212,22 @@ const LoginModal = ({
                   onForgotPassword();
                 }
               }}
+              variant="link"
             >
               Forgot password?
-            </button>
+            </Button>
 
           </div>
 
 
           {/* LOGIN BUTTON */}
-          <button
+          <Button
             type="submit"
             className="modal-login-btn"
+            variant="primary"
           >
             LOGIN
-          </button>
+          </Button>
 
         </form>
 

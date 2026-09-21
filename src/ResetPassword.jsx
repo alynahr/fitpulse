@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
 import "./ResetPassword.css";
 import AppIcon from "./components/AppIcon";
 
@@ -22,13 +23,14 @@ const ResetPassword = ({ onBack }) => {
       ===================================== */}
 
       <div className="reset-container">
-            <button
+            <Button
   type="button"
   className="reset-back"
   onClick={onBack}
+  variant="link"
 >
   <><AppIcon name="chevronLeft" size={15} /> Back to Login</>
-</button>
+</Button>
 
         {/* =====================================
             PROGRESS STEPS
@@ -142,12 +144,13 @@ const ResetPassword = ({ onBack }) => {
               RESET BUTTON
           ===================================== */}
 
-          <button
+          <Button
             type="submit"
             className="reset-button"
+            variant="primary"
           >
             Reset Password
-          </button>
+          </Button>
 
         </form>
 

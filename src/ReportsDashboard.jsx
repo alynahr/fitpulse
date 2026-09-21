@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
 import "./ReportsDashboard.css";
 
 const reportTabs = ["Attendance Summary Report", "Membership Status & Renewal", "Class Popularity & Capacity"];
@@ -10,7 +11,7 @@ const ReportsDashboard = () => {
     <div className="reports-page">
         <header className="reports-header"><div><span>REPORTS</span><h1>Reports Dashboard</h1><p>Generate, preview, and export reports to keep your gym running smoothly.</p></div><div className="reports-user"><b>o</b><span className="report-avatar">JS</span><strong>John Stafford<small>Admin</small></strong></div></header>
         <div className="reports-content">
-          <div className="report-toolbar"><nav>{reportTabs.map((tab, index) => <button className={activeReport === index ? "active" : ""} onClick={() => setActiveReport(index)} key={tab}>{tab}</button>)}</nav><button className="export-all btn btn-secondary">Download All Reports</button><button className="generate-report btn btn-primary">+ &nbsp; Generate New Report</button></div>
+          <div className="report-toolbar"><nav>{reportTabs.map((tab, index) => <Button className={activeReport === index ? "active" : ""} onClick={() => setActiveReport(index)} key={tab} variant="link">{tab}</Button>)}</nav><Button className="export-all btn btn-secondary" variant="secondary">Download All Reports</Button><Button className="generate-report btn btn-primary" variant="primary">+ &nbsp; Generate New Report</Button></div>
           <div className="report-grid">
             <ReportCard title="ATTENDANCE SUMMARY REPORT" type="attendance" />
             <ReportCard title="MEMBERSHIP STATUS & RENEWAL REPORT" type="membership" />

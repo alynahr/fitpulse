@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
 import "./AttendanceLog.css";
 import AppIcon from "./components/AppIcon";
 
@@ -25,11 +26,11 @@ const AttendanceLog = () => {
     <div className="attendance-page">
         <header className="attendance-header"><div><span>ATTENDANCE LOG</span><h1>Daily Attendance Log</h1></div><div className="checkin-user"><b>o</b><span className="kiosk-avatar">FP</span><strong>John Staff<small>Front Desk</small></strong></div></header>
         <div className="attendance-content">
-          <div className="attendance-toolbar"><button className="btn btn-secondary">May 24, 2024</button><button className="btn btn-secondary">All Areas</button><label><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search member or ID..." /></label><button className="export-button btn btn-primary">Export Report</button></div>
+          <div className="attendance-toolbar"><Button className="btn btn-secondary" variant="secondary">May 24, 2024</Button><Button className="btn btn-secondary" variant="secondary">All Areas</Button><label><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search member or ID..." /></label><Button className="export-button btn btn-primary" variant="primary">Export Report</Button></div>
           <section className="attendance-stat-grid">{[["56", "Checked In Today", "+12 vs Yesterday", "users", "blue"], ["8", "In Facility Now", "Live Status", "home", "green"], ["12", "Classes Today", "Scheduled", "calendar", "blue"], ["92%", "Attendance Rate", "vs Capacity", "gauge", "blue"]].map(([value, label, sub, icon, tone]) => <div className="attendance-stat" key={label}><span className={`attendance-icon ${tone}`}><AppIcon name={icon} size={18} /></span><div><strong>{value}</strong><p>{label}</p><small>{sub}</small></div></div>)}</section>
           <div className="attendance-panels">
-            <section className="facility-panel"><div className="attendance-panel-heading"><h2>CURRENTLY IN FACILITY (8)</h2><button>View All</button></div>{visibleMembers.map(([name, id, time, area]) => <div className="facility-row" key={id}><span className="facility-avatar"></span><div><strong>{name}</strong><small>{id}</small></div><time>{time}</time><span className="area-name">{area}</span><em>In Facility</em></div>)}</section>
-            <section className="roster-panel"><div className="attendance-panel-heading"><h2>TODAY'S CLASS ROSTER</h2><button>View All Classes</button></div>{classes.map(([name, time, coach, booked, fill]) => <div className="class-row" key={name}><div><strong>{name}</strong><small>{time} &nbsp;•&nbsp; {coach}</small></div><span>{booked}</span><i><b style={{ width: fill }}></b></i></div>)}</section>
+            <section className="facility-panel"><div className="attendance-panel-heading"><h2>CURRENTLY IN FACILITY (8)</h2><Button variant="link">View All</Button></div>{visibleMembers.map(([name, id, time, area]) => <div className="facility-row" key={id}><span className="facility-avatar"></span><div><strong>{name}</strong><small>{id}</small></div><time>{time}</time><span className="area-name">{area}</span><em>In Facility</em></div>)}</section>
+            <section className="roster-panel"><div className="attendance-panel-heading"><h2>TODAY'S CLASS ROSTER</h2><Button variant="link">View All Classes</Button></div>{classes.map(([name, time, coach, booked, fill]) => <div className="class-row" key={name}><div><strong>{name}</strong><small>{time} &nbsp;•&nbsp; {coach}</small></div><span>{booked}</span><i><b style={{ width: fill }}></b></i></div>)}</section>
           </div>
         </div>
     </div>

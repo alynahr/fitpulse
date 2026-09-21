@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
 import "./AdminDashboard.css";
 import MemberProfile from "./MemberProfile";
 import CheckInKiosk from "./CheckInKiosk";
@@ -55,14 +56,14 @@ const AdminDashboard = ({ onLogout }) => {
 
         <section className="directory-panel">
           <div className="directory-toolbar">
-            <div className="search-filter"><label><span><AppIcon name="search" size={14} /></span><input placeholder="Search members by name, ID or email..." /></label><button className="btn btn-secondary"><AppIcon name="filter" size={14} /> Filter</button></div>
-            <button className="add-member btn btn-primary" onClick={() => navigateTo("member-profile")}><AppIcon name="plus" size={15} /> Add Member</button>
+            <div className="search-filter"><label><span><AppIcon name="search" size={14} /></span><input placeholder="Search members by name, ID or email..." /></label><Button className="btn btn-secondary" variant="secondary"><AppIcon name="filter" size={14} /> Filter</Button></div>
+            <Button className="add-member btn btn-primary" onClick={() => navigateTo("member-profile")} variant="primary"><AppIcon name="plus" size={15} /> Add Member</Button>
           </div>
           <div className="member-filters">
-            {["All Members", "Active", "Expired", "Pending", "Suspended"].map((filter) => <button className={activeFilter === filter ? "active" : ""} onClick={() => setActiveFilter(filter)} key={filter}>{filter}</button>)}
+            {["All Members", "Active", "Expired", "Pending", "Suspended"].map((filter) => <Button className={activeFilter === filter ? "active" : ""} onClick={() => setActiveFilter(filter)} key={filter} variant="link">{filter}</Button>)}
           </div>
           <div className="table-wrap"><table><thead><tr><th>MEMBER ID</th><th>NAME</th><th>EMAIL</th><th>PLAN</th><th>JOIN DATE</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody>{members.map((member) => <tr key={member.id}><td className="member-id">{member.id}</td><td><span className="member-avatar">{member.initials}</span>{member.name}</td><td>{member.email}</td><td><span className="plan-tag">{member.plan}</span></td><td>{member.date}</td><td><span className={`status ${member.tone}`}>{member.status}</span></td><td className="actions"><AppIcon name="more" size={16} /></td></tr>)}</tbody></table></div>
-          <footer className="directory-footer"><span>Showing 1-5 of 1,240 members</span><div className="pagination"><button>Previous</button><button className="current">1</button><button>2</button><button>3</button><button>Next</button></div></footer>
+          <footer className="directory-footer"><span>Showing 1-5 of 1,240 members</span><div className="pagination"><Button variant="link">Previous</Button><Button className="current" variant="link">1</Button><Button variant="link">2</Button><Button variant="link">3</Button><Button variant="link">Next</Button></div></footer>
         </section>
     </AdminLayout>
   );

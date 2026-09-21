@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
+import { Link, NavLink } from "react-router-dom";
 import "./Hero.css";
 import LoginModal from "./LoginModal";
 import JoinFlow from "./JoinFlow";
@@ -51,38 +53,38 @@ const Hero = () => {
     <div className="fitpulse-page">
 
       <header className="public-header">
-        <a className="public-brand" href="#home" aria-label="FitPulse Studio home">
+        <NavLink className="public-brand" to="/#home" aria-label="FitPulse Studio home">
           <img src="/fitpulsetext.png" alt="FitPulse Studio" />
-        </a>
-        <button className="public-menu-button" onClick={() => setMenuOpen(true)} aria-label="Open navigation"><AppIcon name="menu" size={19} /></button>
+        </NavLink>
+        <Button className="public-menu-button" onClick={() => setMenuOpen(true)} aria-label="Open navigation"><AppIcon name="menu" size={19} /></Button>
         <nav className="public-navigation" aria-label="Public navigation">
-          <a className="active" href="#home">HOME</a>
-          <a href="#classes">CLASSES</a>
-          <a href="#membership" onClick={(event) => { event.preventDefault(); openMembershipPreview(); }}>MEMBERSHIP</a>
-          <a href="#trainers">TRAINERS</a>
-          <a href="#about">ABOUT US</a>
-          <a href="#contact">CONTACT</a>
+          <NavLink className="active" to="/#home">HOME</NavLink>
+          <NavLink to="/#classes">CLASSES</NavLink>
+          <NavLink to="/#membership" onClick={(event) => { event.preventDefault(); openMembershipPreview(); }}>MEMBERSHIP</NavLink>
+          <NavLink to="/#trainers">TRAINERS</NavLink>
+          <NavLink to="/#about">ABOUT US</NavLink>
+          <NavLink to="/#contact">CONTACT</NavLink>
         </nav>
         <div className="public-actions">
-          <button className="public-login" onClick={() => setLoginOpen(true)}>LOGIN</button>
-          <button className="public-join" onClick={openJoinFlow}>JOIN NOW</button>
+          <Button className="public-login" onClick={() => setLoginOpen(true)}>LOGIN</Button>
+          <Button className="public-join" onClick={openJoinFlow}>JOIN NOW</Button>
         </div>
       </header>
       <div className={`public-menu-overlay ${menuOpen ? "show" : ""}`} onClick={closeMenu} />
       <aside className={`public-drawer ${menuOpen ? "open" : ""}`} aria-label="Mobile navigation">
         <div className="public-drawer-head">
           <span className="public-drawer-title">FITPULSE STUDIO</span>
-          <button className="public-drawer-close" onClick={closeMenu} aria-label="Close navigation"><AppIcon name="x" size={18} /></button>
+          <Button className="public-drawer-close" onClick={closeMenu} aria-label="Close navigation"><AppIcon name="x" size={18} /></Button>
         </div>
         <nav className="public-drawer-nav">
-          <a href="#home" onClick={closeMenu}>HOME</a>
-          <a href="#classes" onClick={closeMenu}>CLASSES</a>
-          <a href="#membership" onClick={(event) => { event.preventDefault(); closeMenu(); openMembershipPreview(); }}>MEMBERSHIP</a>
-          <a href="#trainers" onClick={closeMenu}>TRAINERS</a>
-          <a href="#about" onClick={closeMenu}>ABOUT US</a>
-          <a href="#contact" onClick={closeMenu}>CONTACT</a>
+          <NavLink to="/#home" onClick={closeMenu}>HOME</NavLink>
+          <NavLink to="/#classes" onClick={closeMenu}>CLASSES</NavLink>
+          <NavLink to="/#membership" onClick={(event) => { event.preventDefault(); closeMenu(); openMembershipPreview(); }}>MEMBERSHIP</NavLink>
+          <NavLink to="/#trainers" onClick={closeMenu}>TRAINERS</NavLink>
+          <NavLink to="/#about" onClick={closeMenu}>ABOUT US</NavLink>
+          <NavLink to="/#contact" onClick={closeMenu}>CONTACT</NavLink>
         </nav>
-        <button className="public-join public-drawer-join" onClick={openJoinFlow}>JOIN NOW</button>
+        <Button className="public-join public-drawer-join" onClick={openJoinFlow}>JOIN NOW</Button>
       </aside>
 
 
@@ -110,9 +112,9 @@ const Hero = () => {
 
           <div className="hero-buttons">
 
-            <button className="hero-join" onClick={openJoinFlow}>
+            <Button className="hero-join" onClick={openJoinFlow}>
               JOIN NOW
-            </button>
+            </Button>
 
 
           </div>
@@ -245,19 +247,19 @@ const Hero = () => {
 
             <div className="social-icons">
 
-              <a href="#" aria-label="Facebook">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                 f
               </a>
 
-              <a href="#" aria-label="Instagram">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                 ◎
               </a>
 
-              <a href="#" aria-label="Twitter">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
                 ♥
               </a>
 
-              <a href="#" aria-label="YouTube">
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
                 ▶
               </a>
 
@@ -278,35 +280,35 @@ const Hero = () => {
 
             <div className="footer-links">
 
-              <a href="#home">
+              <Link to="/#home">
                 Home
-              </a>
+              </Link>
 
-              <a href="#classes">
+              <Link to="/#classes">
                 Classes
-              </a>
+              </Link>
 
-              <a
-                href="#membership"
+              <Link
+                to="/#membership"
                 onClick={(event) => {
                   event.preventDefault();
                   openMembershipPreview();
                 }}
               >
                 Membership
-              </a>
+              </Link>
 
-              <a href="#trainers">
+              <Link to="/#trainers">
                 Trainers
-              </a>
+              </Link>
 
-              <a href="#about">
+              <Link to="/#about">
                 About Us
-              </a>
+              </Link>
 
-              <a href="#contact">
+              <Link to="/#contact">
                 Contact
-              </a>
+              </Link>
 
             </div>
 
@@ -325,29 +327,29 @@ const Hero = () => {
 
             <div className="footer-links">
 
-              <a href="#">
+              <Link to="/#classes">
                 HIIT Training
-              </a>
+              </Link>
 
-              <a href="#">
+              <Link to="/#classes">
                 Strength & Conditioning
-              </a>
+              </Link>
 
-              <a href="#">
+              <Link to="/#classes">
                 Yoga & Mindfulness
-              </a>
+              </Link>
 
-              <a href="#">
+              <Link to="/#classes">
                 Cycling
-              </a>
+              </Link>
 
-              <a href="#">
+              <Link to="/#classes">
                 Boxing
-              </a>
+              </Link>
 
-              <a href="#">
+              <Link to="/#classes">
                 Pilates
-              </a>
+              </Link>
 
             </div>
 
@@ -383,9 +385,9 @@ const Hero = () => {
 
             </div>
 
-            <button className="footer-join" onClick={openJoinFlow}>
+            <Button className="footer-join" onClick={openJoinFlow}>
               JOIN NOW
-            </button>
+            </Button>
 
           </div>
 
@@ -404,17 +406,17 @@ const Hero = () => {
 
           <div className="legal-links">
 
-            <a href="#">
+            <Link to="/#about">
               Privacy Policy
-            </a>
+            </Link>
 
-            <a href="#">
+            <Link to="/#about">
               Terms of Service
-            </a>
+            </Link>
 
-            <a href="#">
+            <Link to="/#about">
               Cookies
-            </a>
+            </Link>
 
           </div>
 

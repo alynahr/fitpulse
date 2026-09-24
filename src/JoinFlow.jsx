@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Button from "react-bootstrap/Button";
-import { Link } from "react-router-dom";
 import "./JoinFlow.css";
+import { addMemberToDB } from "./services/api";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "./firebase"; // Make sure this path points to your firebase config file
+
 
 const plans = [
   {
@@ -117,24 +119,70 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
     })}`;
   };
 
-  const handleMemberSubmit = (e) => {
+  const handleMemberSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.terms) {
-      alert(
-        "Please agree to the Terms & Conditions and Privacy Policy."
-      );
+      alert("Please agree to the Terms & Conditions and Privacy Policy.");
       return;
     }
 
-    if (
-      formData.password !== formData.confirmPassword
-    ) {
+    if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match.");
       return;
     }
 
-    setStep(2);
+    try {
+      // STEP 1: Save to MySQL FIRST (Must wait for completion)
+      console.log("Saving to MySQL...");
+      const dbResult = await addMemberToDB({
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        dob: formData.dateOfBirth,
+        gender: formData.gender,
+        address: formData.address,
+        city: formData.city,
+        province: formData.province,
+        postal_code: formData.postalCode,
+        country: formData.country,
+      });
+
+      console.log("MySQL Response:", dbResult);
+
+      if (dbResult.status === "error") {
+        alert("Database Error: " + dbResult.message);
+        return; // Stop execution if MySQL fails so we can see why!
+      }
+
+      // STEP 2: Create Firebase Auth Account ONLY after MySQL succeeds
+      console.log("Saving to Firebase Auth...");
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+
+      if (userCredential?.user && formData.fullName) {
+        try {
+          await updateProfile(userCredential.user, {
+            displayName: formData.fullName,
+          });
+        } catch (profileErr) {
+          console.warn("Could not set displayName on registration:", profileErr);
+        }
+      }
+
+      if (formData.email) {
+        sessionStorage.setItem("fitpulse_member_email", formData.email);
+      }
+
+      // STEP 3: Move to Step 2 in UI
+      setStep(2);
+    } catch (error) {
+      console.error("Submit Error:", error);
+      alert("Error: " + error.message);
+    }
   };
 
   const handlePayment = (e) => {
@@ -164,14 +212,13 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
         {/* CLOSE BUTTON */}
 
-        <Button
+        <button
           className="join-flow-close"
           onClick={closeFlow}
           aria-label="Close"
-          variant="link"
         >
           ×
-        </Button>
+        </button>
 
 
         {/* ===============================
@@ -527,17 +574,16 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       required
                     />
 
-                    <Button
+                    <button
                       type="button"
                       onClick={() =>
                         setShowPassword(
                           !showPassword
                         )
                       }
-                      variant="link"
                     >
                       {showPassword ? "◉" : "◌"}
-                    </Button>
+                    </button>
 
                   </div>
 
@@ -575,17 +621,16 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       required
                     />
 
-                    <Button
+                    <button
                       type="button"
                       onClick={() =>
                         setShowPassword(
                           !showPassword
                         )
                       }
-                      variant="link"
                     >
                       {showPassword ? "◉" : "◌"}
-                    </Button>
+                    </button>
 
                   </div>
 
@@ -613,25 +658,24 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
               <span>
                 I agree to the{" "}
-                <Link to="/#terms">
+                <a href="#terms">
                   Terms & Conditions
-                </Link>{" "}
+                </a>{" "}
                 and{" "}
-                <Link to="/#privacy">
+                <a href="#privacy">
                   Privacy Policy
-                </Link>
+                </a>
               </span>
 
             </label>
 
 
-            <Button
+            <button
               type="submit"
               className="join-primary-btn"
-              variant="primary"
             >
               CONTINUE TO SELECT PLAN
-            </Button>
+            </button>
 
           </form>
         )}
@@ -731,7 +775,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                   </ul>
 
 
-                  <Button
+                  <button
                     className={
                       selectedPlan === plan.id
                         ? "plan-select selected-btn"
@@ -740,11 +784,9 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setSelectedPlan(plan.id)
                     }
-                    type="button"
-                    variant="outline-light"
                   >
                     SELECT PLAN
-                  </Button>
+                  </button>
 
                 </div>
 
@@ -784,23 +826,19 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
             {!previewOnly && <div className="plan-actions">
 
-              <Button
+              <button
                 className="back-btn"
                 onClick={() => setStep(1)}
-                type="button"
-                variant="link"
               >
                 ← BACK
-              </Button>
+              </button>
 
-              <Button
+              <button
                 className="join-primary-btn"
                 onClick={() => setStep(3)}
-                type="button"
-                variant="primary"
               >
                 CONTINUE TO PAYMENT
-              </Button>
+              </button>
 
             </div>}
 
@@ -967,7 +1005,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
                 <div className="payment-methods">
 
-                  <Button
+                  <button
                     type="button"
                     className={
                       paymentMethod === "card"
@@ -977,7 +1015,6 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("card")
                     }
-                    variant="link"
                   >
 
                     <span className="radio">
@@ -996,10 +1033,10 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       AMEX
                     </div>
 
-                  </Button>
+                  </button>
 
 
-                  <Button
+                  <button
                     type="button"
                     className={
                       paymentMethod === "gcash"
@@ -1009,7 +1046,6 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("gcash")
                     }
-                    variant="link"
                   >
 
                     <span className="radio">
@@ -1024,10 +1060,10 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       G) GCash
                     </strong>
 
-                  </Button>
+                  </button>
 
 
-                  <Button
+                  <button
                     type="button"
                     className={
                       paymentMethod === "maya"
@@ -1037,7 +1073,6 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("maya")
                     }
-                    variant="link"
                   >
 
                     <span className="radio">
@@ -1052,10 +1087,10 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       maya
                     </strong>
 
-                  </Button>
+                  </button>
 
 
-                  <Button
+                  <button
                     type="button"
                     className={
                       paymentMethod ===
@@ -1066,7 +1101,6 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("bank")
                     }
-                    variant="link"
                   >
 
                     <span className="radio">
@@ -1084,10 +1118,10 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       BPI, BDO, Metrobank and more
                     </small>
 
-                  </Button>
+                  </button>
 
 
-                  <Button
+                  <button
                     type="button"
                     className={
                       paymentMethod ===
@@ -1098,7 +1132,6 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("paypal")
                     }
-                    variant="link"
                   >
 
                     <span className="radio">
@@ -1114,7 +1147,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       PayPal
                     </strong>
 
-                  </Button>
+                  </button>
 
                 </div>
 
@@ -1290,23 +1323,21 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                   </div>
                 )}
 
-
-                <Button
+                <button
                   type="submit"
                   className="pay-btn"
-                  variant="primary"
                 >
                   <span>♧</span>
 
                   PAY {formatCurrency(total)}
-                </Button>
+                </button>
 
 
                 <p className="payment-terms">
                   By clicking pay, you agree to our{" "}
-                  <Link to="/#terms">
+                  <a href="#terms">
                     Terms & Conditions
-                  </Link>
+                  </a>
                   .
                 </p>
 
@@ -1317,14 +1348,12 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
             <div className="payment-actions">
 
-              <Button
+              <button
                 className="back-btn"
                 onClick={() => setStep(2)}
-                type="button"
-                variant="link"
               >
                 ← BACK TO PLAN
-              </Button>
+              </button>
 
             </div>
 

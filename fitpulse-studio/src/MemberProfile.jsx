@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Button from "react-bootstrap/Button";
 import "./MemberProfile.css";
 
 const MemberProfile = ({ onBack }) => {
@@ -16,7 +15,7 @@ const MemberProfile = ({ onBack }) => {
         </header>
 
         <div className="member-profile-content">
-          <Button className="back-directory" onClick={onBack} variant="link">&lt;- &nbsp; Back to Member Directory</Button>
+          <button className="back-directory" onClick={onBack}>&lt;- &nbsp; Back to Member Directory</button>
           <div className="profile-layout">
             <section className="member-summary">
               <div className="member-photo-placeholder">+</div>
@@ -33,11 +32,7 @@ const MemberProfile = ({ onBack }) => {
 
             <section className="profile-editor">
               <nav className="profile-tabs">
-                {["Overview", "Membership", "Billing", "Notes"].map((tab) => (
-                  <Button key={tab} className={activeTab === tab ? "active" : ""} onClick={() => setActiveTab(tab)} type="button" variant="link">
-                    {tab}
-                  </Button>
-                ))}
+                {["Overview", "Membership", "Billing", "Notes"].map((tab) => <button key={tab} className={activeTab === tab ? "active" : ""} onClick={() => setActiveTab(tab)}>{tab}</button>)}
               </nav>
               <div className="profile-form">
                 <h2>Overview &amp; Plan Configuration</h2>
@@ -57,7 +52,7 @@ const MemberProfile = ({ onBack }) => {
                   <label>Year of Contract<input type="text" placeholder="2024 (Year 1)" /></label>
                   <label>Membership Tier<select value={tier} onChange={(event) => setTier(event.target.value)}><option>Premium Plan</option><option>Basic Strength</option><option>VIP Unlimited</option></select></label>
                 </div>
-                <div className="profile-actions"><Button className="profile-cancel btn btn-secondary" onClick={onBack} variant="secondary">Cancel</Button><Button className="profile-save btn btn-primary" onClick={onBack} variant="primary">Save Changes</Button></div>
+                <div className="profile-actions"><button className="profile-cancel" onClick={onBack}>Cancel</button><button className="profile-save" onClick={onBack}>Save Changes</button></div>
               </div>
             </section>
           </div>

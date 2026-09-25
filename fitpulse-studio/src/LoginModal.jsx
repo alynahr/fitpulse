@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 import "./LoginModal.css";
 import AppIcon from "./components/AppIcon";
-import { addMemberToDB } from "./services/api";
-
-// Firebase Imports
-import { auth } from "./firebase";
-import { 
-  signInWithEmailAndPassword, 
-  GoogleAuthProvider, 
-  signInWithPopup 
-} from "firebase/auth";
 
 const LoginModal = ({
   isOpen,
@@ -21,85 +12,21 @@ const LoginModal = ({
   const [showPassword, setShowPassword] = useState(false);
   const [loginAs, setLoginAs] = useState("Member");
 
-  // Form State
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
   if (!isOpen) return null;
 
-  // HANDLE EMAIL & PASSWORD LOGIN
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
-    try {
-      // 1. Authenticate with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      if (user?.email) {
-        sessionStorage.setItem("fitpulse_member_email", user.email);
+    // STAFF LOGIN
+    if (loginAs === "Staff") {
+      if (onStaffLogin) {
+        onStaffLogin();
       }
-
-      // 2. Trigger respective callback based on selected role
-      if (loginAs === "Staff") {
-        if (onStaffLogin) onStaffLogin();
-      } else {
-        if (onMemberLogin) onMemberLogin();
-      }
-
-      // Reset state and close modal
-      setEmail("");
-      setPassword("");
-      onClose();
-    } catch (err) {
-      // Format error message for display
-      const message = err.message
-        .replace("Firebase: ", "")
-        .replace(/\(auth\/.*\)\.?/, "")
-        .trim();
-      setError(message || "Invalid email or password.");
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
 
-  // HANDLE GOOGLE SIGN IN
-  const handleGoogleLogin = async () => {
-    setError("");
-    setLoading(true);
-    const provider = new GoogleAuthProvider();
-
-    try {
-      // 1. Authenticate with Google via Firebase
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      if (user?.email) {
-        sessionStorage.setItem("fitpulse_member_email", user.email);
-        // Ensure member record exists for Google sign-in
-        const displayName = user.displayName || user.email.split("@")[0];
-        await addMemberToDB({ name: displayName, email: user.email });
-      }
-
-      if (loginAs === "Staff") {
-        if (onStaffLogin) onStaffLogin();
-      } else {
-        if (onMemberLogin) onMemberLogin();
-      }
-
-      onClose();
-    } catch (err) {
-      const message = err.message
-        .replace("Firebase: ", "")
-        .replace(/\(auth\/.*\)\.?/, "")
-        .trim();
-      setError(message || "Google authentication failed.");
-    } finally {
-      setLoading(false);
+    if (onMemberLogin) {
+      onMemberLogin();
     }
   };
 
@@ -140,8 +67,6 @@ const LoginModal = ({
           <button
             type="button"
             className="social-login-btn"
-            onClick={handleGoogleLogin}
-            disabled={loading}
           >
             <span className="google-icon">
               G
@@ -171,14 +96,6 @@ const LoginModal = ({
           <p>OR</p>
           <span></span>
         </div>
-
-
-        {/* ERROR DISPLAY */}
-        {error && (
-          <p className="login-error" style={{ color: "#ff4d4d", textAlign: "center", fontSize: "0.85rem", marginBottom: "10px" }}>
-            {error}
-          </p>
-        )}
 
 
         {/* LOGIN FORM */}
@@ -231,8 +148,6 @@ const LoginModal = ({
               type="email"
               placeholder="you@example.com"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
             />
 
           </div>
@@ -251,8 +166,6 @@ const LoginModal = ({
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
               />
 
               <button
@@ -307,9 +220,8 @@ const LoginModal = ({
           <button
             type="submit"
             className="modal-login-btn"
-            disabled={loading}
           >
-            {loading ? "LOGGING IN..." : "LOGIN"}
+            LOGIN
           </button>
 
         </form>

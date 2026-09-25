@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import { Link, NavLink } from "react-router-dom";
 import "./Hero.css";
@@ -9,11 +9,13 @@ import ResetPassword from "./ResetPassword";
 import MemberDashboard from "./MemberDashboard";
 import heroImage from "./assets/hero.png";
 import AppIcon from "./components/AppIcon";
+import { getCurrentUser, waitForActiveMembership, logout as apiLogout } from "./lib/api";
 
 const Hero = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
+  const [joinAtPlan, setJoinAtPlan] = useState(false);
   const [membershipPreview, setMembershipPreview] = useState(false);
   const [adminView, setAdminView] = useState(false);
   const [memberView, setMemberView] = useState(false);
@@ -33,11 +35,66 @@ const Hero = () => {
     setMenuOpen(false);
   };
 
+  // Open the right dashboard for whoever is signed in.
+  const routeByRole = (user) => {
+    if (!user) return;
+    if (user.role === "staff") setAdminView(true);
+    else setMemberView(true);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get("checkout");
+    const joinAtPlanStep = params.get("join") === "plan";
+    const authError = params.get("auth_error");
+
+    // Clean ?checkout=..., ?join=..., etc. from the address bar
+    if (window.location.search) {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    if (authError) alert(authError);
+
+    // Keep people logged in across page refreshes and after Google sign-in.
+    getCurrentUser()
+      .then(async (user) => {
+        if (!user) return;
+
+        if (checkout === "success") {
+          // Stripe notifies the server by webhook; wait a moment for it.
+          try {
+            const membership = await waitForActiveMembership();
+            alert(
+              membership
+                ? "Payment received! Your membership is now active."
+                : "Payment received! Your membership will be activated shortly. Refresh the page in a minute."
+            );
+          } catch (err) {
+            alert(`We couldn't check your membership yet: ${err.message}`);
+          }
+        }
+
+        if (joinAtPlanStep) {
+          // Just signed up with Google: continue to plan selection
+          setJoinAtPlan(true);
+          setJoinOpen(true);
+          return;
+        }
+        routeByRole(user);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  const logout = async () => {
+    await apiLogout().catch(() => {});
+    setAdminView(false);
+    setMemberView(false);
+  };
+
   if (adminView) {
-    return <AdminDashboard onLogout={() => setAdminView(false)} />;
+    return <AdminDashboard onLogout={logout} />;
   }
   if (memberView) {
-    return <MemberDashboard onLogout={() => setMemberView(false)} />;
+    return <MemberDashboard onLogout={logout} />;
   }
   if (resetPasswordOpen) {
   return (
@@ -445,8 +502,12 @@ const Hero = () => {
 
         <JoinFlow
         isOpen={joinOpen}
-        onClose={() => setJoinOpen(false)}
+        onClose={() => {
+          setJoinOpen(false);
+          setJoinAtPlan(false);
+        }}
         previewOnly={membershipPreview}
+        startAtPlan={joinAtPlan}
         />     
     </div>
   );

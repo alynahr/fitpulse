@@ -1,15 +1,8 @@
 import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
 import "./LoginModal.css";
 import AppIcon from "./components/AppIcon";
-import { addMemberToDB } from "./services/api";
-
-// Firebase Imports
-import { auth } from "./firebase";
-import { 
-  signInWithEmailAndPassword, 
-  GoogleAuthProvider, 
-  signInWithPopup 
-} from "firebase/auth";
+import { login, logout, continueWithGoogle } from "./lib/api";
 
 const LoginModal = ({
   isOpen,
@@ -20,8 +13,6 @@ const LoginModal = ({
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginAs, setLoginAs] = useState("Member");
-
-  // Form State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,79 +20,37 @@ const LoginModal = ({
 
   if (!isOpen) return null;
 
-  // HANDLE EMAIL & PASSWORD LOGIN
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
+    let user;
     try {
-      // 1. Authenticate with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      if (user?.email) {
-        sessionStorage.setItem("fitpulse_member_email", user.email);
-      }
-
-      // 2. Trigger respective callback based on selected role
-      if (loginAs === "Staff") {
-        if (onStaffLogin) onStaffLogin();
-      } else {
-        if (onMemberLogin) onMemberLogin();
-      }
-
-      // Reset state and close modal
-      setEmail("");
-      setPassword("");
-      onClose();
+      user = await login(email, password);
     } catch (err) {
-      // Format error message for display
-      const message = err.message
-        .replace("Firebase: ", "")
-        .replace(/\(auth\/.*\)\.?/, "")
-        .trim();
-      setError(message || "Invalid email or password.");
-    } finally {
+      setError(err.message);
       setLoading(false);
+      return;
+    }
+
+    setLoading(false);
+
+    // The role comes from the database, not from the dropdown.
+    if (loginAs === "Staff" && user.role !== "staff") {
+      await logout();
+      setError("This account doesn't have staff access.");
+      return;
+    }
+
+    if (user.role === "staff" && loginAs === "Staff") {
+      onStaffLogin?.();
+    } else {
+      onMemberLogin?.();
     }
   };
 
-  // HANDLE GOOGLE SIGN IN
-  const handleGoogleLogin = async () => {
-    setError("");
-    setLoading(true);
-    const provider = new GoogleAuthProvider();
-
-    try {
-      // 1. Authenticate with Google via Firebase
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      if (user?.email) {
-        sessionStorage.setItem("fitpulse_member_email", user.email);
-        // Ensure member record exists for Google sign-in
-        const displayName = user.displayName || user.email.split("@")[0];
-        await addMemberToDB({ name: displayName, email: user.email });
-      }
-
-      if (loginAs === "Staff") {
-        if (onStaffLogin) onStaffLogin();
-      } else {
-        if (onMemberLogin) onMemberLogin();
-      }
-
-      onClose();
-    } catch (err) {
-      const message = err.message
-        .replace("Firebase: ", "")
-        .replace(/\(auth\/.*\)\.?/, "")
-        .trim();
-      setError(message || "Google authentication failed.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleGoogleLogin = () => continueWithGoogle("login");
 
   return (
     <div
@@ -114,14 +63,15 @@ const LoginModal = ({
       >
 
         {/* CLOSE BUTTON */}
-        <button
+        <Button
           type="button"
           className="login-close"
           onClick={onClose}
           aria-label="Close login"
+          variant="link"
         >
           <AppIcon name="x" size={18} />
-        </button>
+        </Button>
 
 
         {/* LOGIN HEADER */}
@@ -137,30 +87,31 @@ const LoginModal = ({
         {/* SOCIAL LOGIN */}
         <div className="social-login">
 
-          <button
+          <Button
             type="button"
             className="social-login-btn"
+            variant="outline-light"
             onClick={handleGoogleLogin}
-            disabled={loading}
           >
             <span className="google-icon">
               G
             </span>
 
             Continue with Google
-          </button>
+          </Button>
 
 
-          <button
+          <Button
             type="button"
             className="social-login-btn"
+            variant="outline-light"
           >
             <span className="apple-icon">
               ●
             </span>
 
             Continue with Apple
-          </button>
+          </Button>
 
         </div>
 
@@ -171,14 +122,6 @@ const LoginModal = ({
           <p>OR</p>
           <span></span>
         </div>
-
-
-        {/* ERROR DISPLAY */}
-        {error && (
-          <p className="login-error" style={{ color: "#ff4d4d", textAlign: "center", fontSize: "0.85rem", marginBottom: "10px" }}>
-            {error}
-          </p>
-        )}
 
 
         {/* LOGIN FORM */}
@@ -230,9 +173,9 @@ const LoginModal = ({
             <input
               type="email"
               placeholder="you@example.com"
-              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
 
           </div>
@@ -250,9 +193,9 @@ const LoginModal = ({
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
 
               <button
@@ -261,6 +204,7 @@ const LoginModal = ({
                 onClick={() =>
                   setShowPassword(!showPassword)
                 }
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 <AppIcon name={showPassword ? "eyeOff" : "eye"} size={16} />
               </button>
@@ -288,7 +232,7 @@ const LoginModal = ({
             </label>
 
 
-            <button
+            <Button
               type="button"
               className="forgot-password"
               onClick={() => {
@@ -296,21 +240,29 @@ const LoginModal = ({
                   onForgotPassword();
                 }
               }}
+              variant="link"
             >
               Forgot password?
-            </button>
+            </Button>
 
           </div>
 
 
+          {error && (
+            <p className="login-error" role="alert" style={{ color: "#ff6b6b", margin: 0 }}>
+              {error}
+            </p>
+          )}
+
           {/* LOGIN BUTTON */}
-          <button
+          <Button
             type="submit"
             className="modal-login-btn"
+            variant="primary"
             disabled={loading}
           >
             {loading ? "LOGGING IN..." : "LOGIN"}
-          </button>
+          </Button>
 
         </form>
 

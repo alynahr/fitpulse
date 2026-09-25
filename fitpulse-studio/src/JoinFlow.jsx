@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./JoinFlow.css";
-import { addMemberToDB } from "./services/api";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "./firebase"; // Make sure this path points to your firebase config file
-
 
 const plans = [
   {
@@ -119,70 +115,24 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
     })}`;
   };
 
-  const handleMemberSubmit = async (e) => {
+  const handleMemberSubmit = (e) => {
     e.preventDefault();
 
     if (!formData.terms) {
-      alert("Please agree to the Terms & Conditions and Privacy Policy.");
+      alert(
+        "Please agree to the Terms & Conditions and Privacy Policy."
+      );
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (
+      formData.password !== formData.confirmPassword
+    ) {
       alert("Passwords do not match.");
       return;
     }
 
-    try {
-      // STEP 1: Save to MySQL FIRST (Must wait for completion)
-      console.log("Saving to MySQL...");
-      const dbResult = await addMemberToDB({
-        name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        dob: formData.dateOfBirth,
-        gender: formData.gender,
-        address: formData.address,
-        city: formData.city,
-        province: formData.province,
-        postal_code: formData.postalCode,
-        country: formData.country,
-      });
-
-      console.log("MySQL Response:", dbResult);
-
-      if (dbResult.status === "error") {
-        alert("Database Error: " + dbResult.message);
-        return; // Stop execution if MySQL fails so we can see why!
-      }
-
-      // STEP 2: Create Firebase Auth Account ONLY after MySQL succeeds
-      console.log("Saving to Firebase Auth...");
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      );
-
-      if (userCredential?.user && formData.fullName) {
-        try {
-          await updateProfile(userCredential.user, {
-            displayName: formData.fullName,
-          });
-        } catch (profileErr) {
-          console.warn("Could not set displayName on registration:", profileErr);
-        }
-      }
-
-      if (formData.email) {
-        sessionStorage.setItem("fitpulse_member_email", formData.email);
-      }
-
-      // STEP 3: Move to Step 2 in UI
-      setStep(2);
-    } catch (error) {
-      console.error("Submit Error:", error);
-      alert("Error: " + error.message);
-    }
+    setStep(2);
   };
 
   const handlePayment = (e) => {
@@ -1322,6 +1272,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
                   </div>
                 )}
+
 
                 <button
                   type="submit"

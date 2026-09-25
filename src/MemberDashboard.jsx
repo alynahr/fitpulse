@@ -1,19 +1,51 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
+import Button from "react-bootstrap/Button";
 import "./MemberDashboard.css";
 import MemberSidebar from "./components/MemberSidebar";
 import AppIcon from "./components/AppIcon";
-import { auth } from "./firebase";
-import { onAuthStateChanged, updateProfile } from "firebase/auth";
-import { getMemberFromDB, updateMemberInDB } from "./services/api";
 
+/* ---------------------------------------------------------- */
+/* Legacy inline icon map retained only for compatibility.
+// ----------------------------------------------------------
+const ICONS = {
+  grid: <><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></>,
+  user: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></>,
+  award: <><circle cx="12" cy="8" r="6" /><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1" /></>,
+  calendar: <><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></>,
+  clock: <><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15.5 14" /></>,
+  key: <><circle cx="7.5" cy="15.5" r="5.5" /><path d="M11 12 20 3" /><path d="M16 7l3 3" /><path d="M14 9l2.5 2.5" /></>,
+  checkCircle: <><path d="M21 10.8V12a9 9 0 1 1-5.3-8.2" /><polyline points="21 4 12 13.01 9 10.01" /></>,
+  card: <><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></>,
+  settings: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.65 1.65 0 0 0-1.8-.3 1.65 1.65 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.65 1.65 0 0 0 .3-1.8 1.65 1.65 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.65 1.65 0 0 0 1.8.3H9a1.65 1.65 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.65 1.65 0 0 0 1 1.5 1.65 1.65 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.65 1.65 0 0 0-.3 1.8V9a1.65 1.65 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.65 1.65 0 0 0-1.5 1z" /></>,
+  logOut: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></>,
+  bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 0 1-3.4 0" /></>,
+  share: <><circle cx="18" cy="5" r="2.6" /><circle cx="6" cy="12" r="2.6" /><circle cx="18" cy="19" r="2.6" /><line x1="8.3" y1="13.5" x2="15.4" y2="17.5" /><line x1="15.4" y1="6.5" x2="8.3" y2="10.5" /></>,
+  chevronLeft: <polyline points="15 18 9 12 15 6" />,
+  chevronRight: <polyline points="9 18 15 12 9 6" />,
+  mapPin: <><path d="M21 10c0 6.5-9 12.5-9 12.5S3 16.5 3 10a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></>,
+  users: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.9" /><path d="M16 3.1a4 4 0 0 1 0 7.8" /></>,
+  x: <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>,
+  plus: <><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></>,
+  flame: <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z" />,
+  trending: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></>,
+  info: <><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></>,
+  edit: <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></>,
+  menu: <><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></>,
+};
+const Icon = ({ name, size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {ICONS[name]}
+  </svg>
+);
+*/
 const Icon = AppIcon;
 
 /* ---------------------------------------------------------- */
-/* Data Defaults & Fallbacks                                   */
+/* Data                                                        */
 /* ---------------------------------------------------------- */
-const DEFAULT_MEMBER = {
+const MEMBER = {
   name: "User",
-  fullName: "User",
+  fullName: "User Batumbakal",
   initials: "U",
   plan: "Premium Member",
   planName: "Premium Plan",
@@ -21,10 +53,10 @@ const DEFAULT_MEMBER = {
   validUntil: "May 31, 2026",
   nextBilling: "June 1, 2026",
   paymentMethod: "Visa ending in 4242",
-  email: "",
-  phone: "",
-  dob: "",
-  address: "",
+  email: "batumbakal@email.com",
+  phone: "0917 123 4567",
+  dob: "Jan 15, 2000",
+  address: "123 Purok Onse",
 };
 
 const WEEK_DAYS = [
@@ -117,15 +149,15 @@ const TopBar = ({ eyebrow, title, sub, right }) => (
   </header>
 );
 
-const ProfileBadge = ({ member }) => (
+const ProfileBadge = () => (
   <div className="mv-profile-badge">
-    <button className="mv-icon-btn" aria-label="Notifications"><Icon name="bell" /></button>
+    <Button className="mv-icon-btn" aria-label="Notifications" variant="link"><Icon name="bell" /></Button>
     <div className="mv-avatar-wrap">
-      <span className="mv-avatar">{member.initials}</span>
+      <span className="mv-avatar">{MEMBER.initials}</span>
     </div>
     <div className="mv-profile-text">
-      <strong>{member.name}</strong>
-      <small>{member.plan}</small>
+      <strong>{MEMBER.name}</strong>
+      <small>{MEMBER.plan}</small>
     </div>
   </div>
 );
@@ -133,11 +165,11 @@ const ProfileBadge = ({ member }) => (
 /* ---------------------------------------------------------- */
 /* Dashboard                                                    */
 /* ---------------------------------------------------------- */
-const Dashboard = ({ go, bookingsCount, member }) => (
+const Dashboard = ({ go, bookingsCount }) => (
   <>
-    <TopBar eyebrow="MEMBER WORKSPACE" title="Dashboard" sub="Let's crush your goals today." right={<ProfileBadge member={member} />} />
+    <TopBar eyebrow="MEMBER WORKSPACE" title="Dashboard" sub="Let's crush your goals today." right={<ProfileBadge />} />
     <div className="mv-body">
-      <h2 className="mv-greeting">Hello, {member.name}! 👋</h2>
+      <h2 className="mv-greeting">Hello, {MEMBER.name}! 👋</h2>
       <p className="mv-greeting-sub">Your body can stand almost anything, it's your mind that needs convincing.</p>
 
       <div className="mv-dash-grid">
@@ -147,14 +179,14 @@ const Dashboard = ({ go, bookingsCount, member }) => (
               <span className="mv-panel-icon"><Icon name="award" /></span>
               <div>
                 <p className="mv-label">CURRENT MEMBERSHIP</p>
-                <strong>{member.planName}</strong>
+                <strong>{MEMBER.planName}</strong>
               </div>
               <div className="mv-plan-valid">
                 <p className="mv-label">VALID UNTIL</p>
-                <strong>{member.validUntil}</strong>
+                <strong>{MEMBER.validUntil}</strong>
               </div>
             </div>
-            <button className="mv-btn-primary mv-full" onClick={() => go("settings")}>RENEW NOW</button>
+            <Button className="mv-btn-primary mv-full" onClick={() => go("settings")} variant="primary">RENEW NOW</Button>
           </section>
 
           <section className="mv-panel">
@@ -171,7 +203,7 @@ const Dashboard = ({ go, bookingsCount, member }) => (
                 </div>
               </div>
             </div>
-            <button className="mv-btn-ghost mv-full" onClick={() => go("bookings")}>VIEW BOOKING</button>
+            <Button className="mv-btn-ghost mv-full" onClick={() => go("bookings")} variant="outline-light">VIEW BOOKING</Button>
           </section>
         </div>
 
@@ -183,10 +215,10 @@ const Dashboard = ({ go, bookingsCount, member }) => (
           <section className="mv-panel">
             <p className="mv-label">QUICK ACTIONS</p>
             <div className="mv-quick-actions">
-              <button onClick={() => go("schedule")}><Icon name="plus" /> Book a Class</button>
-              <button onClick={() => go("bookings")}><Icon name="calendar" /> My Bookings</button>
-              <button onClick={() => go("idpass")}><Icon name="key" /> My ID Pass</button>
-              <button onClick={() => go("billing")}><Icon name="card" /> View Billing</button>
+              <Button onClick={() => go("schedule")} variant="link"><Icon name="plus" /> Book a Class</Button>
+              <Button onClick={() => go("bookings")} variant="link"><Icon name="calendar" /> My Bookings</Button>
+              <Button onClick={() => go("idpass")} variant="link"><Icon name="key" /> My ID Pass</Button>
+              <Button onClick={() => go("billing")} variant="link"><Icon name="card" /> View Billing</Button>
             </div>
           </section>
         </div>
@@ -198,7 +230,7 @@ const Dashboard = ({ go, bookingsCount, member }) => (
           <h3>Get 1 week FREE</h3>
           <p>For every successful referral that signs up for any premium tier plan.</p>
         </div>
-        <button className="mv-btn-primary">REFER NOW</button>
+        <Button className="mv-btn-primary" variant="primary">REFER NOW</Button>
       </section>
     </div>
   </>
@@ -212,7 +244,7 @@ const ClassDetailModal = ({ cls, onClose, onBook, isBooked }) => (
     <div className="mv-modal" onClick={(e) => e.stopPropagation()}>
       <div className="mv-modal-head">
         <span className="mv-eyebrow">CLASS DETAILS</span>
-        <button className="mv-icon-btn" onClick={onClose}><Icon name="x" /></button>
+        <Button className="mv-icon-btn" onClick={onClose} variant="link"><Icon name="x" /></Button>
       </div>
       <div className="mv-modal-banner">
         <span>{cls.name}</span>
@@ -239,13 +271,14 @@ const ClassDetailModal = ({ cls, onClose, onBook, isBooked }) => (
           </div>
         </div>
 
-        <button
+        <Button
           className="mv-btn-primary mv-full"
           disabled={cls.spots >= cls.capacity || isBooked}
           onClick={() => onBook(cls)}
+          variant="primary"
         >
           {isBooked ? "ALREADY BOOKED" : cls.spots >= cls.capacity ? "CLASS FULL" : "BOOK CLASS"}
-        </button>
+        </Button>
       </div>
     </div>
   </div>
@@ -284,26 +317,28 @@ const ClassSchedule = ({ bookings, onAddBooking }) => {
 
         <div className="mv-schedule-toolbar">
           <div className="mv-month-nav">
-            <button className="mv-icon-btn"><Icon name="chevronLeft" /></button>
+            <Button className="mv-icon-btn" variant="link"><Icon name="chevronLeft" /></Button>
             <strong>May 2026</strong>
-            <button className="mv-icon-btn"><Icon name="chevronRight" /></button>
+            <Button className="mv-icon-btn" variant="link"><Icon name="chevronRight" /></Button>
           </div>
           <div className="mv-view-toggle">
-            <button className={viewMode === "List" ? "active" : ""} onClick={() => setViewMode("List")}>List</button>
-            <button className={viewMode === "Calendar" ? "active" : ""} onClick={() => setViewMode("Calendar")}>Calendar</button>
+            <Button className={viewMode === "List" ? "active" : ""} onClick={() => setViewMode("List")} variant="link">List</Button>
+            <Button className={viewMode === "Calendar" ? "active" : ""} onClick={() => setViewMode("Calendar")} variant="link">Calendar</Button>
           </div>
         </div>
 
         <div className="mv-week-strip">
           {WEEK_DAYS.map((d) => (
-            <button
+            <Button
               key={d.date}
               className={`mv-week-day ${selectedDate === d.date ? "active" : ""}`}
               onClick={() => setSelectedDate(d.date)}
+              type="button"
+              variant="link"
             >
               <span>{d.label}</span>
               <strong>{d.date}</strong>
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -327,13 +362,14 @@ const ClassSchedule = ({ bookings, onAddBooking }) => {
                 <div className={`mv-spots ${full ? "full" : ""}`}>
                   <Icon name="users" size={13} /> {cls.spots}/{cls.capacity}
                 </div>
-                <button
+                <Button
                   className={full ? "mv-btn-disabled" : "mv-btn-book"}
                   disabled={full}
                   onClick={() => setSelectedClass(cls)}
+                  variant={full ? "secondary" : "primary"}
                 >
                   {full ? "FULL" : booked ? "BOOKED" : "BOOK"}
-                </button>
+                </Button>
               </div>
             );
           })}
@@ -373,12 +409,12 @@ const MyBookings = ({ bookings, onCancel }) => {
       />
       <div className="mv-body">
         <div className="mv-tabs">
-          <button className={tab === "upcoming" ? "active" : ""} onClick={() => setTab("upcoming")}>
+          <Button className={tab === "upcoming" ? "active" : ""} onClick={() => setTab("upcoming")} variant="link">
             Upcoming ({bookings.length})
-          </button>
-          <button className={tab === "past" ? "active" : ""} onClick={() => setTab("past")}>
+          </Button>
+          <Button className={tab === "past" ? "active" : ""} onClick={() => setTab("past")} variant="link">
             Past Classes
-          </button>
+          </Button>
         </div>
 
         {list.length === 0 && <div className="mv-empty">Nothing here yet — book a class to see it show up.</div>}
@@ -394,8 +430,8 @@ const MyBookings = ({ bookings, onCancel }) => {
             <p className="mv-booking-time"><Icon name="clock" size={13} /> {b.date} · {b.time}</p>
             {tab === "upcoming" && (
               <div className="mv-booking-actions">
-                <button className="mv-btn-ghost"><Icon name="calendar" size={13} /> Add to Cal</button>
-                <button className="mv-btn-cancel" onClick={() => onCancel(b.id)}>Cancel</button>
+                <Button className="mv-btn-ghost" variant="outline-light"><Icon name="calendar" size={13} /> Add to Cal</Button>
+                <Button className="mv-btn-cancel" onClick={() => onCancel(b.id)} variant="outline-danger">Cancel</Button>
               </div>
             )}
           </div>
@@ -418,7 +454,7 @@ const MyBookings = ({ bookings, onCancel }) => {
 /* ---------------------------------------------------------- */
 /* My ID Pass                                                   */
 /* ---------------------------------------------------------- */
-const MyIDPass = ({ member }) => (
+const MyIDPass = () => (
   <>
     <TopBar title="My ID Pass" sub="Your digital membership card" right={<span className="mv-tag confirmed"><Icon name="info" size={12} /> Ready to Scan</span>} />
     <div className="mv-body mv-center">
@@ -430,12 +466,12 @@ const MyIDPass = ({ member }) => (
             <span key={i} style={{ opacity: Math.random() > 0.5 ? 1 : 0.15 }} />
           ))}
         </div>
-        <strong className="mv-id-name">{member.fullName}</strong>
-        <p className="mv-id-number">{member.memberId}</p>
+        <strong className="mv-id-name">{MEMBER.name}</strong>
+        <p className="mv-id-number">{MEMBER.memberId}</p>
         <div className="mv-id-divider" />
-        <p className="mv-id-valid">Valid until <strong>{member.validUntil}</strong></p>
+        <p className="mv-id-valid">Valid until <strong>{MEMBER.validUntil}</strong></p>
         <p className="mv-muted">Show this code at the front desk</p>
-        <button className="mv-icon-btn mv-id-share" aria-label="Share pass"><Icon name="share" /></button>
+        <Button className="mv-icon-btn mv-id-share" aria-label="Share pass" variant="link"><Icon name="share" /></Button>
       </div>
     </div>
   </>
@@ -444,9 +480,9 @@ const MyIDPass = ({ member }) => (
 /* ---------------------------------------------------------- */
 /* Attendance                                                   */
 /* ---------------------------------------------------------- */
-const Attendance = ({ member }) => {
+const Attendance = () => {
   const [showAll, setShowAll] = useState(false);
-  const firstWeekdayOffset = 3;
+  const firstWeekdayOffset = 3; // May 2024 starts on Wednesday
   const daysInMonth = 31;
   const cells = [];
   for (let i = 0; i < firstWeekdayOffset; i++) cells.push(null);
@@ -456,7 +492,7 @@ const Attendance = ({ member }) => {
 
   return (
     <>
-      <TopBar eyebrow="ATTENDANCE" title="Attendance History" right={<><button className="mv-btn-ghost">Export Report</button><ProfileBadge member={member} /></>} />
+      <TopBar eyebrow="ATTENDANCE" title="Attendance History" right={<><Button className="mv-btn-ghost" variant="outline-light">Export Report</Button><ProfileBadge /></>} />
       <div className="mv-body">
         <div className="mv-stat-grid">
           {ATTENDANCE_STATS.map((s) => (
@@ -476,9 +512,9 @@ const Attendance = ({ member }) => {
             <div className="mv-cal-head">
               <strong className="mv-panel-title mv-eyebrow-title">ACTIVITY CALENDAR</strong>
               <div className="mv-month-nav small">
-                <button className="mv-icon-btn"><Icon name="chevronLeft" /></button>
+                <Button className="mv-icon-btn" variant="link"><Icon name="chevronLeft" /></Button>
                 <span>May 2024</span>
-                <button className="mv-icon-btn"><Icon name="chevronRight" /></button>
+                <Button className="mv-icon-btn" variant="link"><Icon name="chevronRight" /></Button>
               </div>
               <div className="mv-legend"><span className="mv-muted">Less</span><i className="l1" /><i className="l2" /><i className="l3" /><span className="mv-muted">More</span></div>
             </div>
@@ -505,7 +541,7 @@ const Attendance = ({ member }) => {
           <section className="mv-panel">
             <div className="mv-panel-title-row">
               <strong className="mv-panel-title mv-eyebrow-title">RECENT CHECK-INS</strong>
-              <button className="mv-link-btn" onClick={() => setShowAll(!showAll)}>{showAll ? "SHOW LESS" : "VIEW ALL"}</button>
+              <Button className="mv-link-btn" onClick={() => setShowAll(!showAll)} variant="link">{showAll ? "SHOW LESS" : "VIEW ALL"}</Button>
             </div>
             <div className="mv-checkin-list">
               {visibleCheckins.map((c, i) => (
@@ -519,7 +555,7 @@ const Attendance = ({ member }) => {
                 </div>
               ))}
             </div>
-            <button className="mv-btn-ghost mv-full">VIEW FULL HISTORY</button>
+            <Button className="mv-btn-ghost mv-full" variant="outline-light">VIEW FULL HISTORY</Button>
           </section>
         </div>
       </div>
@@ -530,112 +566,49 @@ const Attendance = ({ member }) => {
 /* ---------------------------------------------------------- */
 /* Profile & Settings                                            */
 /* ---------------------------------------------------------- */
-const ProfileSettings = ({ activePlan, onSwitchPlan, go, member, onUpdateMember }) => {
+const ProfileSettings = ({ activePlan, onSwitchPlan, go }) => {
   const [form, setForm] = useState({
-    name: member?.fullName || "",
-    email: member?.email || "",
-    phone: member?.phone || "",
-    dob: member?.dob || "",
-    address: member?.address || "",
+    name: MEMBER.fullName,
+    email: MEMBER.email,
+    phone: MEMBER.phone,
+    dob: MEMBER.dob,
+    address: MEMBER.address,
   });
-
-  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    if (member) {
-      setForm({
-        name: member.fullName || "",
-        email: member.email || "",
-        phone: member.phone || "",
-        dob: member.dob || "",
-        address: member.address || "",
-      });
-    }
-  }, [member]);
-
   const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
-
-  const handleSave = async () => {
-    setSaving(true);
-    const userEmail =
-      String(form.email || member?.email || auth.currentUser?.email || sessionStorage.getItem("fitpulse_member_email") || "").trim();
-
-    const updatedData = {
-      email: userEmail,
-      name: form.name,
-      fullName: form.name,
-      phone: form.phone,
-      dob: form.dob,
-      address: form.address,
-      gender: member?.gender || "",
-      city: member?.city || "",
-      province: member?.province || "",
-      postal_code: member?.postal_code || member?.postalCode || "",
-      country: member?.country || "",
-    };
-
-    try {
-      // 1. Update Firebase Authentication Profile (displayName)
-      if (auth.currentUser && form.name) {
-        try {
-          await updateProfile(auth.currentUser, {
-            displayName: form.name,
-          });
-          console.log("Firebase Auth displayName updated successfully:", form.name);
-        } catch (firebaseErr) {
-          console.error("Firebase updateProfile error:", firebaseErr);
-        }
-      }
-
-      // 2. Update AwardSpace MySQL members table
-      if (typeof updateMemberInDB === "function" && userEmail) {
-        const dbResult = await updateMemberInDB(updatedData);
-        console.log("AwardSpace update result:", dbResult);
-      }
-
-      // 3. Update dashboard UI state
-      if (onUpdateMember) {
-        onUpdateMember(updatedData);
-      }
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch (err) {
-      console.error("Failed to update profile:", err);
-    } finally {
-      setSaving(false);
-    }
+  const handleSave = () => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
   };
 
   return (
     <>
-      <TopBar eyebrow="MEMBER WORKSPACE" title="Profile & Settings" sub="Manage your personal info, plan, and billing" right={<ProfileBadge member={member} />} />
+      <TopBar eyebrow="MEMBER WORKSPACE" title="Profile & Settings" sub="Manage your personal info, plan, and billing" right={<ProfileBadge />} />
       <div className="mv-body">
         <section className="mv-panel mv-profile-head">
-          <span className="mv-avatar large">{member.initials}</span>
+          <span className="mv-avatar large">{MEMBER.initials}</span>
           <div className="mv-profile-head-text">
-            <strong>{member.name}</strong>
+            <strong>{MEMBER.name}</strong>
             <div className="mv-profile-head-meta">
-              <span className="mv-tag confirmed"><Icon name="award" size={11} /> {member.plan}</span>
-              <span className="mv-muted">Member ID: {member.memberId}</span>
+              <span className="mv-tag confirmed"><Icon name="award" size={11} /> {MEMBER.plan}</span>
+              <span className="mv-muted">Member ID: {MEMBER.memberId}</span>
             </div>
           </div>
+          <Button className="mv-btn-ghost" variant="outline-light"><Icon name="edit" size={13} /> EDIT PROFILE</Button>
         </section>
 
         <div className="mv-profile-grid">
           <section className="mv-panel">
             <strong className="mv-panel-title">Personal Information</strong>
             <label className="mv-field"><span>FULL NAME</span><input value={form.name} onChange={update("name")} /></label>
-            <label className="mv-field"><span>EMAIL</span><input value={form.email} disabled /></label>
+            <label className="mv-field"><span>EMAIL</span><input value={form.email} onChange={update("email")} /></label>
             <div className="mv-field-row">
               <label className="mv-field"><span>PHONE</span><input value={form.phone} onChange={update("phone")} /></label>
               <label className="mv-field"><span>DATE OF BIRTH</span><input value={form.dob} onChange={update("dob")} /></label>
             </div>
             <label className="mv-field"><span>ADDRESS</span><input value={form.address} onChange={update("address")} /></label>
-            <button className="mv-btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? "SAVING..." : "SAVE CHANGES"}
-            </button>
-            {saved && <span className="mv-saved-msg">✓ Changes saved successfully!</span>}
+            <Button className="mv-btn-primary" onClick={handleSave} variant="primary">SAVE CHANGES</Button>
+            {saved && <span className="mv-saved-msg">Changes saved</span>}
           </section>
 
           <section className="mv-panel">
@@ -655,7 +628,7 @@ const ProfileSettings = ({ activePlan, onSwitchPlan, go, member, onUpdateMember 
                 </div>
               </div>
             ))}
-            <button className="mv-btn-primary mv-full" onClick={() => go("billing")}>VIEW ALL TRANSACTIONS</button>
+            <Button className="mv-btn-primary mv-full" onClick={() => go("billing")} variant="primary">VIEW ALL TRANSACTIONS</Button>
           </section>
 
           <section className="mv-panel">
@@ -664,20 +637,20 @@ const ProfileSettings = ({ activePlan, onSwitchPlan, go, member, onUpdateMember 
               <span className="mv-panel-icon"><Icon name="award" /></span>
               <div>
                 <p className="mv-label">CURRENT PLAN</p>
-                <strong>{member.planName}</strong>
+                <strong>{MEMBER.planName}</strong>
               </div>
               <div className="mv-plan-valid">
                 <p className="mv-label">VALID UNTIL</p>
-                <strong>{member.validUntil}</strong>
+                <strong>{MEMBER.validUntil}</strong>
               </div>
             </div>
             <div className="mv-plan-rows">
-              <span className="mv-muted">Next Billing Date</span><strong>{member.nextBilling}</strong>
-              <span className="mv-muted">Payment Method</span><strong>{member.paymentMethod}</strong>
+              <span className="mv-muted">Next Billing Date</span><strong>{MEMBER.nextBilling}</strong>
+              <span className="mv-muted">Payment Method</span><strong>{MEMBER.paymentMethod}</strong>
             </div>
             <div className="mv-sub-actions">
-              <button className="mv-btn-primary">RENEW NOW</button>
-              <button className="mv-btn-danger">CANCEL MEMBERSHIP</button>
+              <Button className="mv-btn-primary" variant="primary">RENEW NOW</Button>
+              <Button className="mv-btn-danger" variant="danger">CANCEL MEMBERSHIP</Button>
             </div>
           </section>
 
@@ -690,13 +663,14 @@ const ProfileSettings = ({ activePlan, onSwitchPlan, go, member, onUpdateMember 
                   <strong>{p.name}</strong>
                   <p className="mv-plan-price">{p.price}<span>/mo</span></p>
                   <ul>{p.features.map((f) => <li key={f}><Icon name="checkCircle" size={11} /> {f}</li>)}</ul>
-                  <button
+                  <Button
                     className={activePlan === p.key ? "mv-btn-disabled" : "mv-btn-ghost"}
                     disabled={activePlan === p.key}
                     onClick={() => onSwitchPlan(p.key)}
+                    variant={activePlan === p.key ? "secondary" : "outline-light"}
                   >
                     {activePlan === p.key ? "CURRENT PLAN" : "SWITCH PLAN"}
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -710,9 +684,9 @@ const ProfileSettings = ({ activePlan, onSwitchPlan, go, member, onUpdateMember 
 /* ---------------------------------------------------------- */
 /* Billing History (full)                                       */
 /* ---------------------------------------------------------- */
-const BillingHistoryFull = ({ member }) => (
+const BillingHistoryFull = () => (
   <>
-    <TopBar title="Billing History" sub="All charges and payments on your account" right={<ProfileBadge member={member} />} />
+    <TopBar title="Billing History" sub="All charges and payments on your account" right={<ProfileBadge />} />
     <div className="mv-body">
       <section className="mv-panel">
         {BILLING_HISTORY.map((b, i) => (
@@ -740,117 +714,6 @@ const MemberDashboard = ({ onLogout }) => {
   const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
   const [activePlan, setActivePlan] = useState("Premium");
   const [navOpen, setNavOpen] = useState(false);
-  const [member, setMember] = useState(DEFAULT_MEMBER);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadMemberInfo = async (userEmail, currentUser) => {
-      if (!userEmail) return;
-      try {
-        const data = await getMemberFromDB(userEmail);
-        if (!isMounted) return;
-
-        if (data && !data.error) {
-          const fullName =
-            data.name ||
-            data.fullName ||
-            data.full_name ||
-            currentUser?.displayName ||
-            "User";
-          const email = data.email || userEmail;
-          const phone =
-            data.phone ||
-            data.phoneNumber ||
-            data.phone_number ||
-            data.contact ||
-            "";
-          const dob =
-            data.dob ||
-            data.dateOfBirth ||
-            data.date_of_birth ||
-            data.birthdate ||
-            "";
-
-          let addressStr = data.address || "";
-          if (data.city && !addressStr.includes(data.city)) {
-            const parts = [addressStr, data.city, data.province].filter(Boolean);
-            addressStr = parts.join(", ");
-          }
-
-          const memberIdNumber =
-            data.id || data.member_id || data.memberId || 1;
-          const memberIdFormatted = `FP-0306-${String(memberIdNumber).padStart(6, "0")}`;
-
-          setMember((prev) => ({
-            ...prev,
-            fullName: fullName,
-            name: fullName.split(" ")[0] || "User",
-            initials: (fullName.charAt(0) || "U").toUpperCase(),
-            email: email,
-            phone: phone,
-            dob: dob,
-            address: addressStr,
-            gender: data.gender || prev.gender || "",
-            plan: data.plan || data.membership_type || prev.plan,
-            planName: data.planName || data.plan_name || prev.planName,
-            memberId: memberIdFormatted,
-          }));
-        } else if (currentUser && isMounted) {
-          const fallbackName =
-            currentUser.displayName ||
-            currentUser.email?.split("@")[0] ||
-            "User";
-          setMember((prev) => ({
-            ...prev,
-            fullName: fallbackName,
-            name: fallbackName.split(" ")[0] || "User",
-            initials: (fallbackName.charAt(0) || "U").toUpperCase(),
-            email: currentUser.email || prev.email,
-          }));
-        }
-      } catch (err) {
-        console.error("Failed to load member profile:", err);
-      }
-    };
-
-    const immediateUser = auth.currentUser;
-    const storedEmail =
-      sessionStorage.getItem("fitpulse_member_email") ||
-      localStorage.getItem("fitpulse_member_email");
-
-    if (immediateUser?.email) {
-      loadMemberInfo(immediateUser.email, immediateUser);
-    } else if (storedEmail) {
-      loadMemberInfo(storedEmail, null);
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.email) {
-        sessionStorage.setItem("fitpulse_member_email", user.email);
-        loadMemberInfo(user.email, user);
-      }
-    });
-
-    return () => {
-      isMounted = false;
-      unsubscribe();
-    };
-  }, []);
-
-  const handleUpdateMember = (updatedData) => {
-    setMember((prev) => ({
-      ...prev,
-      fullName: updatedData.name || prev.fullName,
-      name: updatedData.name ? updatedData.name.split(" ")[0] : prev.name,
-      initials: updatedData.name
-        ? updatedData.name.charAt(0).toUpperCase()
-        : prev.initials,
-      phone: updatedData.phone !== undefined ? updatedData.phone : prev.phone,
-      dob: updatedData.dob !== undefined ? updatedData.dob : prev.dob,
-      address: updatedData.address !== undefined ? updatedData.address : prev.address,
-    }));
-  };
 
   const go = (v) => setView(v);
   const selectNav = (key) => {
@@ -880,32 +743,24 @@ const MemberDashboard = ({ onLogout }) => {
 
   const renderView = () => {
     switch (view) {
-      case "dashboard": return <Dashboard go={go} bookingsCount={bookings.length} member={member} />;
+      case "dashboard": return <Dashboard go={go} bookingsCount={bookings.length} />;
       case "profile":
       case "settings":
       case "membership":
-        return (
-          <ProfileSettings
-            activePlan={activePlan}
-            onSwitchPlan={setActivePlan}
-            go={go}
-            member={member}
-            onUpdateMember={handleUpdateMember}
-          />
-        );
+        return <ProfileSettings activePlan={activePlan} onSwitchPlan={setActivePlan} go={go} />;
       case "bookings": return <MyBookings bookings={bookings} onCancel={cancelBooking} />;
       case "schedule": return <ClassSchedule bookings={bookings} onAddBooking={addBooking} />;
-      case "idpass": return <MyIDPass member={member} />;
-      case "attendance": return <Attendance member={member} />;
-      case "billing": return <BillingHistoryFull member={member} />;
-      default: return <Dashboard go={go} bookingsCount={bookings.length} member={member} />;
+      case "idpass": return <MyIDPass />;
+      case "attendance": return <Attendance />;
+      case "billing": return <BillingHistoryFull />;
+      default: return <Dashboard go={go} bookingsCount={bookings.length} />;
     }
   };
 
   return (
     <div className="mv-page">
-      <button className="fp-mobile-menu" onClick={() => setNavOpen(true)} aria-label="Open menu"><Icon name="menu" size={19} /></button>
-      <MemberSidebar activePage={view} onNavigate={selectNav} onLogout={onLogout} open={navOpen} onClose={() => setNavOpen(false)} member={member} />
+      <Button className="fp-mobile-menu" onClick={() => setNavOpen(true)} aria-label="Open menu" variant="link"><Icon name="menu" size={19} /></Button>
+      <MemberSidebar activePage={view} onNavigate={selectNav} onLogout={onLogout} open={navOpen} onClose={() => setNavOpen(false)} />
       <main className="mv-main fp-shell-main">{renderView()}</main>
     </div>
   );

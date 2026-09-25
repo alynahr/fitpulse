@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
+import Button from "react-bootstrap/Button";
+import { Link } from "react-router-dom";
 import "./JoinFlow.css";
-import { addMemberToDB } from "./services/api";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "./firebase"; // Make sure this path points to your firebase config file
-
+import { register, getCurrentUser, startCheckout, continueWithGoogle } from "./lib/api";
 
 const plans = [
   {
@@ -53,20 +52,22 @@ const plans = [
   },
 ];
 
-const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
-  const [step, setStep] = useState(previewOnly ? 2 : 1);
+const JoinFlow = ({ isOpen, onClose, previewOnly = false, startAtPlan = false }) => {
+  const [step, setStep] = useState((previewOnly || startAtPlan) ? 2 : 1);
 
   useEffect(() => {
     if (isOpen) {
-      setStep(previewOnly ? 2 : 1);
+      setStep((previewOnly || startAtPlan) ? 2 : 1);
     }
-  }, [isOpen, previewOnly]);
+  }, [isOpen, previewOnly, startAtPlan]);
 
   const [selectedPlan, setSelectedPlan] = useState("premium");
 
   const [paymentMethod, setPaymentMethod] = useState("card");
 
   const [showPassword, setShowPassword] = useState(false);
+
+  const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -82,12 +83,6 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
     password: "",
     confirmPassword: "",
     terms: false,
-
-    cardNumber: "",
-    cardholderName: "",
-    expiryDate: "",
-    cvc: "",
-    saveCard: false,
   });
 
   if (!isOpen) return null;
@@ -123,80 +118,78 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
     e.preventDefault();
 
     if (!formData.terms) {
-      alert("Please agree to the Terms & Conditions and Privacy Policy.");
+      alert(
+        "Please agree to the Terms & Conditions and Privacy Policy."
+      );
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (
+      formData.password !== formData.confirmPassword
+    ) {
       alert("Passwords do not match.");
       return;
     }
 
+    setSubmitting(true);
+
     try {
-      // STEP 1: Save to MySQL FIRST (Must wait for completion)
-      console.log("Saving to MySQL...");
-      const dbResult = await addMemberToDB({
-        name: formData.fullName,
+      // Creates the account in MySQL and logs the member in.
+      await register({
         email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
         phone: formData.phone,
-        dob: formData.dateOfBirth,
+        dateOfBirth: formData.dateOfBirth,
         gender: formData.gender,
         address: formData.address,
         city: formData.city,
         province: formData.province,
-        postal_code: formData.postalCode,
+        postalCode: formData.postalCode,
         country: formData.country,
       });
+    } catch (err) {
+      setSubmitting(false);
+      alert(err.message);
+      return;
+    }
 
-      console.log("MySQL Response:", dbResult);
+    setSubmitting(false);
+    setStep(2);
+  };
 
-      if (dbResult.status === "error") {
-        alert("Database Error: " + dbResult.message);
-        return; // Stop execution if MySQL fails so we can see why!
-      }
+  // Google sign-up: the PHP backend creates the account on first sign-in,
+  // then sends the member back here to pick a plan (?join=plan).
+  const handleGoogleSignUp = () => continueWithGoogle("plan");
 
-      // STEP 2: Create Firebase Auth Account ONLY after MySQL succeeds
-      console.log("Saving to Firebase Auth...");
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
+  const handlePayment = async (e) => {
+    e.preventDefault();
+
+    if (paymentMethod !== "card") {
+      alert(
+        "Only card payments are connected right now. Please choose Credit / Debit Card."
       );
+      return;
+    }
 
-      if (userCredential?.user && formData.fullName) {
-        try {
-          await updateProfile(userCredential.user, {
-            displayName: formData.fullName,
-          });
-        } catch (profileErr) {
-          console.warn("Could not set displayName on registration:", profileErr);
-        }
-      }
+    const user = await getCurrentUser().catch(() => null);
+    if (!user) {
+      alert("Please log in or create an account before paying.");
+      setStep(1);
+      return;
+    }
 
-      if (formData.email) {
-        sessionStorage.setItem("fitpulse_member_email", formData.email);
-      }
-
-      // STEP 3: Move to Step 2 in UI
-      setStep(2);
-    } catch (error) {
-      console.error("Submit Error:", error);
-      alert("Error: " + error.message);
+    try {
+      setSubmitting(true);
+      await startCheckout(selectedPlan); // redirects to Stripe Checkout
+    } catch (err) {
+      setSubmitting(false);
+      alert(err.message);
     }
   };
 
-  const handlePayment = (e) => {
-    e.preventDefault();
-
-    alert(
-      `Payment submitted for ${selected.name} - ${formatCurrency(
-        total
-      )}`
-    );
-  };
-
   const closeFlow = () => {
-    setStep(previewOnly ? 2 : 1);
+    setStep((previewOnly || startAtPlan) ? 2 : 1);
     onClose();
   };
 
@@ -212,13 +205,14 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
         {/* CLOSE BUTTON */}
 
-        <button
+        <Button
           className="join-flow-close"
           onClick={closeFlow}
           aria-label="Close"
+          variant="link"
         >
           ×
-        </button>
+        </Button>
 
 
         {/* ===============================
@@ -293,6 +287,25 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                 </p>
               </div>
 
+            </div>
+
+            {/* SIGN UP WITH GOOGLE */}
+            <div className="social-login">
+              <Button
+                type="button"
+                className="social-login-btn"
+                variant="outline-light"
+                onClick={handleGoogleSignUp}
+              >
+                <span className="google-icon">G</span>
+                Continue with Google
+              </Button>
+            </div>
+
+            <div className="login-divider">
+              <span></span>
+              <p>OR SIGN UP WITH EMAIL</p>
+              <span></span>
             </div>
 
 
@@ -574,16 +587,17 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       required
                     />
 
-                    <button
+                    <Button
                       type="button"
                       onClick={() =>
                         setShowPassword(
                           !showPassword
                         )
                       }
+                      variant="link"
                     >
                       {showPassword ? "◉" : "◌"}
-                    </button>
+                    </Button>
 
                   </div>
 
@@ -621,16 +635,17 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       required
                     />
 
-                    <button
+                    <Button
                       type="button"
                       onClick={() =>
                         setShowPassword(
                           !showPassword
                         )
                       }
+                      variant="link"
                     >
                       {showPassword ? "◉" : "◌"}
-                    </button>
+                    </Button>
 
                   </div>
 
@@ -658,24 +673,25 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
               <span>
                 I agree to the{" "}
-                <a href="#terms">
+                <Link to="/#terms">
                   Terms & Conditions
-                </a>{" "}
+                </Link>{" "}
                 and{" "}
-                <a href="#privacy">
+                <Link to="/#privacy">
                   Privacy Policy
-                </a>
+                </Link>
               </span>
 
             </label>
 
 
-            <button
+            <Button
               type="submit"
               className="join-primary-btn"
+              variant="primary"
             >
               CONTINUE TO SELECT PLAN
-            </button>
+            </Button>
 
           </form>
         )}
@@ -775,7 +791,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                   </ul>
 
 
-                  <button
+                  <Button
                     className={
                       selectedPlan === plan.id
                         ? "plan-select selected-btn"
@@ -784,9 +800,11 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setSelectedPlan(plan.id)
                     }
+                    type="button"
+                    variant="outline-light"
                   >
                     SELECT PLAN
-                  </button>
+                  </Button>
 
                 </div>
 
@@ -826,19 +844,23 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
             {!previewOnly && <div className="plan-actions">
 
-              <button
+              <Button
                 className="back-btn"
                 onClick={() => setStep(1)}
+                type="button"
+                variant="link"
               >
                 ← BACK
-              </button>
+              </Button>
 
-              <button
+              <Button
                 className="join-primary-btn"
                 onClick={() => setStep(3)}
+                type="button"
+                variant="primary"
               >
                 CONTINUE TO PAYMENT
-              </button>
+              </Button>
 
             </div>}
 
@@ -1005,7 +1027,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
                 <div className="payment-methods">
 
-                  <button
+                  <Button
                     type="button"
                     className={
                       paymentMethod === "card"
@@ -1015,6 +1037,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("card")
                     }
+                    variant="link"
                   >
 
                     <span className="radio">
@@ -1033,10 +1056,10 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       AMEX
                     </div>
 
-                  </button>
+                  </Button>
 
 
-                  <button
+                  <Button
                     type="button"
                     className={
                       paymentMethod === "gcash"
@@ -1046,6 +1069,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("gcash")
                     }
+                    variant="link"
                   >
 
                     <span className="radio">
@@ -1060,10 +1084,10 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       G) GCash
                     </strong>
 
-                  </button>
+                  </Button>
 
 
-                  <button
+                  <Button
                     type="button"
                     className={
                       paymentMethod === "maya"
@@ -1073,6 +1097,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("maya")
                     }
+                    variant="link"
                   >
 
                     <span className="radio">
@@ -1087,10 +1112,10 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       maya
                     </strong>
 
-                  </button>
+                  </Button>
 
 
-                  <button
+                  <Button
                     type="button"
                     className={
                       paymentMethod ===
@@ -1101,6 +1126,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("bank")
                     }
+                    variant="link"
                   >
 
                     <span className="radio">
@@ -1118,10 +1144,10 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       BPI, BDO, Metrobank and more
                     </small>
 
-                  </button>
+                  </Button>
 
 
-                  <button
+                  <Button
                     type="button"
                     className={
                       paymentMethod ===
@@ -1132,6 +1158,7 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                     onClick={() =>
                       setPaymentMethod("paypal")
                     }
+                    variant="link"
                   >
 
                     <span className="radio">
@@ -1147,150 +1174,28 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                       PayPal
                     </strong>
 
-                  </button>
+                  </Button>
 
                 </div>
 
 
-                {/* CARD DETAILS */}
+                {/* CARD DETAILS
+                    Card numbers are entered on Stripe's hosted checkout page,
+                    never in this app, so no card data touches your code. */}
 
                 {paymentMethod === "card" && (
-                  <div className="card-details">
+                  <div className="alternative-payment">
 
-                    <h3>CARD DETAILS</h3>
-
-
-                    <div className="form-field full">
-
-                      <label>
-                        CARD NUMBER
-                      </label>
-
-                      <div className="input-with-icon">
-
-                        <input
-                          type="text"
-                          placeholder="1234 5678 9012 3456"
-                          value={
-                            formData.cardNumber
-                          }
-                          onChange={(e) =>
-                            updateField(
-                              "cardNumber",
-                              e.target.value
-                            )
-                          }
-                          required
-                        />
-
-                        <span>▭</span>
-
-                      </div>
-
+                    <div className="alternative-icon">
+                      ✓
                     </div>
 
+                    <h3>Secure Card Payment</h3>
 
-                    <div className="form-field full">
-
-                      <label>
-                        CARDHOLDER NAME
-                      </label>
-
-                      <input
-                        type="text"
-                        placeholder="Juan Dela Cruz"
-                        value={
-                          formData.cardholderName
-                        }
-                        onChange={(e) =>
-                          updateField(
-                            "cardholderName",
-                            e.target.value
-                          )
-                        }
-                        required
-                      />
-
-                    </div>
-
-
-                    <div className="form-row">
-
-                      <div className="form-field">
-
-                        <label>
-                          EXPIRY DATE
-                        </label>
-
-                        <input
-                          type="text"
-                          placeholder="MM / YY"
-                          value={
-                            formData.expiryDate
-                          }
-                          onChange={(e) =>
-                            updateField(
-                              "expiryDate",
-                              e.target.value
-                            )
-                          }
-                          required
-                        />
-
-                      </div>
-
-
-                      <div className="form-field">
-
-                        <label>CVC</label>
-
-                        <div className="input-with-icon">
-
-                          <input
-                            type="text"
-                            placeholder="123"
-                            value={
-                              formData.cvc
-                            }
-                            onChange={(e) =>
-                              updateField(
-                                "cvc",
-                                e.target.value
-                              )
-                            }
-                            required
-                          />
-
-                          <span>ⓘ</span>
-
-                        </div>
-
-                      </div>
-
-                    </div>
-
-
-                    <label className="save-card">
-
-                      <input
-                        type="checkbox"
-                        checked={
-                          formData.saveCard
-                        }
-                        onChange={(e) =>
-                          updateField(
-                            "saveCard",
-                            e.target.checked
-                          )
-                        }
-                      />
-
-                      <span>
-                        Save card for faster
-                        checkout next time
-                      </span>
-
-                    </label>
+                    <p>
+                      You'll be redirected to Stripe to
+                      enter your card details securely.
+                    </p>
 
                   </div>
                 )}
@@ -1323,21 +1228,24 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
                   </div>
                 )}
 
-                <button
+
+                <Button
                   type="submit"
                   className="pay-btn"
+                  variant="primary"
+                  disabled={submitting}
                 >
                   <span>♧</span>
 
                   PAY {formatCurrency(total)}
-                </button>
+                </Button>
 
 
                 <p className="payment-terms">
                   By clicking pay, you agree to our{" "}
-                  <a href="#terms">
+                  <Link to="/#terms">
                     Terms & Conditions
-                  </a>
+                  </Link>
                   .
                 </p>
 
@@ -1348,12 +1256,14 @@ const JoinFlow = ({ isOpen, onClose, previewOnly = false }) => {
 
             <div className="payment-actions">
 
-              <button
+              <Button
                 className="back-btn"
                 onClick={() => setStep(2)}
+                type="button"
+                variant="link"
               >
                 ← BACK TO PLAN
-              </button>
+              </Button>
 
             </div>
 

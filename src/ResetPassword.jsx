@@ -9,11 +9,12 @@ const ResetPassword = ({ onBack }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("Reset password for:", email);
-
-    // Later:
-    // Connect this to your backend/API
+    // Password reset emails aren't set up on the PHP backend yet.
+    alert(
+      "Online password reset isn't available yet. Please ask FitPulse staff to reset your password."
+    );
   };
+
 
   return (
     <main className="reset-page">
